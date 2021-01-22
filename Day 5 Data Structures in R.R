@@ -143,9 +143,10 @@ list1
 # Create two lists.
 list1 <- list(1,2,3)
 list2 <- list("Sun","Mon","Tue")
+list3 <- list(1:3)
 
 # Merge the two lists.
-merged.list <- c(list1,list2)
+merged.list <- c(list1,list2,list3)
 
 # Print the merged list.
 print(merged.list)
@@ -158,7 +159,9 @@ print(merged.list)
 # Create lists.
 list1 <- list(1:5)
 print(list1)
+list1
 list1[[1]][1]
+list1[[1]][5]
 
 list2 <-list(10:14)
 print(list2)
