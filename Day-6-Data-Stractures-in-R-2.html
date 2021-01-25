@@ -875,6 +875,231 @@ print(div) #Printing the division</code></pre>
 <h2>R Array</h2>
 <p>R arrays are the data objects which can store data in more than two dimensions. In arrays, data is stored in the form of matrices, rows, and columns.</p>
 <p>An array is created using the <code>array()</code> function.</p>
+<p>The array function in R <code>Array_NAME &lt;- array(data, dim = (row_Size, column_Size, matrices, dimnames)</code></p>
+<pre class="r"><code>array(data = NA, dim = length(data), dimname = NULL)</code></pre>
+<pre><code>## [1] NA</code></pre>
+<div id="create-array-in-r" class="section level4">
+<h4>Create Array in R</h4>
+<pre class="r"><code># Create two vectors of different lengths.
+
+vector1 &lt;- c(2,9,3)
+vector2 &lt;- c(10,16,17,13,11,15)
+
+# Take these vectors as input to the array.
+result &lt;- array(c(vector1,vector2),dim = c(3,3,2))
+print(result)</code></pre>
+<pre><code>## , , 1
+## 
+##      [,1] [,2] [,3]
+## [1,]    2   10   13
+## [2,]    9   16   11
+## [3,]    3   17   15
+## 
+## , , 2
+## 
+##      [,1] [,2] [,3]
+## [1,]    2   10   13
+## [2,]    9   16   11
+## [3,]    3   17   15</code></pre>
+<pre class="r"><code># Naming Columns And Rows
+vector1 &lt;- c(2,9,6)
+vector2 &lt;- c(10,15,13,16,11,12)
+column.names &lt;- c(&quot;COL1&quot;,&quot;COL2&quot;,&quot;COL3&quot;)
+row.names &lt;- c(&quot;ROW1&quot;,&quot;ROW2&quot;,&quot;ROW3&quot;)
+matrix.names &lt;- c(&quot;Matrix1&quot;,&quot;Matrix2&quot;)
+result &lt;- array(c(vector1,vector2),dim = c(3,3,2),dimnames = list(row.names,column.names, matrix.names))
+print(result)</code></pre>
+<pre><code>## , , Matrix1
+## 
+##      COL1 COL2 COL3
+## ROW1    2   10   16
+## ROW2    9   15   11
+## ROW3    6   13   12
+## 
+## , , Matrix2
+## 
+##      COL1 COL2 COL3
+## ROW1    2   10   16
+## ROW2    9   15   11
+## ROW3    6   13   12</code></pre>
+<p>Accessing R Array Elements</p>
+<pre class="r"><code># Print the third row of the second matrix of the array.
+print(result[3,,2])</code></pre>
+<pre><code>## COL1 COL2 COL3 
+##    6   13   12</code></pre>
+<pre class="r"><code># Print the element in the 1st row and 3rd column of the 1st matrix.
+
+print(result[1,3,1])</code></pre>
+<pre><code>## [1] 16</code></pre>
+<pre class="r"><code># Print the 2nd Matrix.
+
+print(result[,,2])</code></pre>
+<pre><code>##      COL1 COL2 COL3
+## ROW1    2   10   16
+## ROW2    9   15   11
+## ROW3    6   13   12</code></pre>
+</div>
+<div id="manipulating-r-array-elements" class="section level3">
+<h3>Manipulating R Array Elements</h3>
+<pre class="r"><code># Create two vectors of different lengths.
+
+vector1 &lt;- c(1,2,3)
+vector2 &lt;- c(3,4,5,6,7,8)
+
+array1 &lt;- array(c(vector1,vector2),dim = c(3,3,2))
+
+# Create two vectors of different lengths.
+
+vector3 &lt;- c(3,2,1)
+vector4 &lt;- c(8,7,6,5,4,3)
+array2 &lt;- array(c(vector1,vector2),dim = c(3,3,2))
+
+array1</code></pre>
+<pre><code>## , , 1
+## 
+##      [,1] [,2] [,3]
+## [1,]    1    3    6
+## [2,]    2    4    7
+## [3,]    3    5    8
+## 
+## , , 2
+## 
+##      [,1] [,2] [,3]
+## [1,]    1    3    6
+## [2,]    2    4    7
+## [3,]    3    5    8</code></pre>
+<pre class="r"><code>array2</code></pre>
+<pre><code>## , , 1
+## 
+##      [,1] [,2] [,3]
+## [1,]    1    3    6
+## [2,]    2    4    7
+## [3,]    3    5    8
+## 
+## , , 2
+## 
+##      [,1] [,2] [,3]
+## [1,]    1    3    6
+## [2,]    2    4    7
+## [3,]    3    5    8</code></pre>
+<pre class="r"><code># create matrices from these arrays.
+
+matrix1 &lt;- array1[,,2]
+matrix2 &lt;- array2[,,2]
+
+matrix1</code></pre>
+<pre><code>##      [,1] [,2] [,3]
+## [1,]    1    3    6
+## [2,]    2    4    7
+## [3,]    3    5    8</code></pre>
+<pre class="r"><code>matrix2</code></pre>
+<pre><code>##      [,1] [,2] [,3]
+## [1,]    1    3    6
+## [2,]    2    4    7
+## [3,]    3    5    8</code></pre>
+<pre class="r"><code># Add the matrices.
+
+result &lt;- matrix1+matrix2
+print(result)</code></pre>
+<pre><code>##      [,1] [,2] [,3]
+## [1,]    2    6   12
+## [2,]    4    8   14
+## [3,]    6   10   16</code></pre>
+</div>
+</div>
+<div id="r-data-frame" class="section level2">
+<h2>R Data Frame</h2>
+<p>The tabular data is referred by the data frames in which there are a number of observations(rows) or measurements (columns).</p>
+<p><code>function - data.frame()</code></p>
+<pre class="r"><code>int_vec &lt;- c(1,2,3) 
+char_vec &lt;- c(&quot;a&quot;, &quot;b&quot;, &quot;c&quot;)
+bool_vec &lt;- c(TRUE, TRUE, FALSE)
+data_frame &lt;- data.frame(int_vec, char_vec, bool_vec)
+data_frame</code></pre>
+<pre><code>##   int_vec char_vec bool_vec
+## 1       1        a     TRUE
+## 2       2        b     TRUE
+## 3       3        c    FALSE</code></pre>
+<div id="r-data-frame-operations" class="section level3">
+<h3>R Data Frame Operations</h3>
+<pre class="r"><code>#Create Data Frame
+
+employee_data &lt;- data.frame(
+  employee_id = c (1:5),
+  employee_name = c(&quot;James&quot;,&quot;Harry&quot;,&quot;Shinji&quot;,&quot;Jim&quot;,&quot;Oliver&quot;),
+  salary = c(642.3,535.2,681.0,739.0,925.26),
+  join_date = as.Date(c(&quot;2013-02-04&quot;, &quot;2017-06-21&quot;, &quot;2012-11-14&quot;, &quot;2018-05-19&quot;,&quot;2016-03-25&quot;)),
+  stringsAsFactors = FALSE)
+
+print(employee_data)</code></pre>
+<pre><code>##   employee_id employee_name salary  join_date
+## 1           1         James 642.30 2013-02-04
+## 2           2         Harry 535.20 2017-06-21
+## 3           3        Shinji 681.00 2012-11-14
+## 4           4           Jim 739.00 2018-05-19
+## 5           5        Oliver 925.26 2016-03-25</code></pre>
+<pre class="r"><code># The structure of the data frame can see by using the star () function.
+
+str(employee_data)</code></pre>
+<pre><code>## &#39;data.frame&#39;:    5 obs. of  4 variables:
+##  $ employee_id  : int  1 2 3 4 5
+##  $ employee_name: chr  &quot;James&quot; &quot;Harry&quot; &quot;Shinji&quot; &quot;Jim&quot; ...
+##  $ salary       : num  642 535 681 739 925
+##  $ join_date    : Date, format: &quot;2013-02-04&quot; &quot;2017-06-21&quot; ...</code></pre>
+<pre class="r"><code># Extract Specific columns
+output &lt;- data.frame(employee_data$employee_name, employee_data$employee_id)
+
+print(output)</code></pre>
+<pre><code>##   employee_data.employee_name employee_data.employee_id
+## 1                       James                         1
+## 2                       Harry                         2
+## 3                      Shinji                         3
+## 4                         Jim                         4
+## 5                      Oliver                         5</code></pre>
+<pre class="r"><code># Extract first two rows
+output &lt;- employee_data[1:2,]
+print(output) </code></pre>
+<pre><code>##   employee_id employee_name salary  join_date
+## 1           1         James  642.3 2013-02-04
+## 2           2         Harry  535.2 2017-06-21</code></pre>
+<pre class="r"><code># Expand R Data Frame - Add the column vector using a new column name.
+
+employee_data$dept &lt;- c(&quot;IT&quot;,&quot;Finance&quot;,&quot;Operations&quot;,&quot;HR&quot;,&quot;Administration&quot;)
+print(employee_data)</code></pre>
+<pre><code>##   employee_id employee_name salary  join_date           dept
+## 1           1         James 642.30 2013-02-04             IT
+## 2           2         Harry 535.20 2017-06-21        Finance
+## 3           3        Shinji 681.00 2012-11-14     Operations
+## 4           4           Jim 739.00 2018-05-19             HR
+## 5           5        Oliver 925.26 2016-03-25 Administration</code></pre>
+</div>
+<div id="bind-the-two-data-frames." class="section level3">
+<h3>Bind the two data frames.</h3>
+<pre class="r"><code># Create the second R data frame
+
+employee_new_data &lt;- data.frame(
+employee_id = c (6:8),
+employee_name = c(&quot;Aman&quot;, &quot;Piyush&quot;, &quot;Aakash&quot;),
+salary = c(523.0,721.3,622.8),
+join_date = as.Date(c(&quot;2015-06-22&quot;,&quot;2016-04-30&quot;,&quot;2011-03-17&quot;)),
+dept = c(&quot;IT&quot;,&quot;Finance&quot;,&quot;Operations&quot;),
+stringsAsFactors = FALSE
+)
+
+# Bind the two data 
+
+employee_out_data &lt;- rbind(employee_data,employee_new_data)
+employee_out_data</code></pre>
+<pre><code>##   employee_id employee_name salary  join_date           dept
+## 1           1         James 642.30 2013-02-04             IT
+## 2           2         Harry 535.20 2017-06-21        Finance
+## 3           3        Shinji 681.00 2012-11-14     Operations
+## 4           4           Jim 739.00 2018-05-19             HR
+## 5           5        Oliver 925.26 2016-03-25 Administration
+## 6           6          Aman 523.00 2015-06-22             IT
+## 7           7        Piyush 721.30 2016-04-30        Finance
+## 8           8        Aakash 622.80 2011-03-17     Operations</code></pre>
+</div>
 </div>
 </div>
 
