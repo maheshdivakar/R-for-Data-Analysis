@@ -1,0 +1,412 @@
+---
+title: "R for Data Analysis - Day 6"
+author: "MAHESH DIVAKARAN"
+date: "1/25/2021"
+output: html_document
+---
+
+
+# Welcome to R Markdown!!!
+
+
+```{r}
+print("Welcome to R Markdown!!!")
+```
+
+## Introduction to Data Structures in R
+
+There are many types of R-objects. The popularly used ones are:
+
+Vector
+Matrix
+Array
+Lists
+Data Frames
+
+### 1. R Vector
+
+A vector is a sequence of elements that share the same data type. 
+
+R vector comes in two parts: `Atomic vectors` and `Lists`.
+
+```{r}
+vector() # an empty 'logical' (the default) vector
+
+vector("character", length = 5) # a vector of mode 'character' with 5 elements
+
+character(5) # the same thing, but using the constructor directly
+
+numeric(5)   # a numeric vector with 5 elements
+
+logical(5)   # a logical vector with 5 elements
+
+# You can also create vectors by directly specifying their content. R will then guess the appropriate mode of storage for the vector. 
+
+a = c(1,2,3,4,5,6,7)
+
+a
+
+typeof(a)
+
+x <- c(1, 2, 3)
+
+x
+typeof(x)
+
+x1 <- c(1L, 2L, 3L)
+x1 
+
+typeof(x1)
+
+
+# coerce to the integer type using as.integer()
+
+x2 =  as.integer(x)
+x2
+typeof(x2)
+
+# Using TRUE and FALSE will create a vector of mode logical
+
+y <- c(TRUE, TRUE, FALSE, FALSE)
+
+y
+
+typeof(y)
+
+# Quoted text will create a vector of mode character
+
+z <- c("Sarah", "Tracy", "Jon")
+
+zz <- c("Sarah", "Tracy", "Jon","Sarah", "Tracy", "Jon","Sarah", "Tracy", "Jon","Sarah", "Tracy", "Jon")
+
+# Examining Vectors
+
+# The functions typeof(), length(), class() and str() provide useful information about your vectors and R objects in general.
+
+typeof(z)
+length(z)
+class(z)
+str(z)
+str(zz)
+
+
+mult = c(1,2,3,"Sarah", "Tracy", "Jon",T,FALSE,1+9i)
+typeof(mult)
+class(mult)
+
+# Adding Elements in a Vector
+#The function c() (for combine) can also be used to add elements to a vector.
+
+z <- c(z, "Annette", "Biju")
+z
+
+z <- c("Greg", z)
+
+
+
+# Vectors from a Sequence of Numbers
+
+series <- 1:100
+
+series1 = seq(100)
+
+
+ser1 = seq(from = 1, to = 10, by = 0.1)
+
+ser2 = seq(1,10,0.1)
+
+ser1 == ser2
+
+
+# Missing Data
+
+# R supports missing data in vectors. They are represented as NA (Not Available) and can be used for all the vector types covered in this lesson:
+
+x <- c(0.5, NA, 0.7)
+
+#The function is.na() indicates the elements of the vectors that represent missing data, and the function anyNA() returns TRUE if the vector contains any missing values
+
+
+is.na(x)
+
+anyNA(x)
+
+x1 <- c(TRUE, FALSE, NA)
+
+is.na(x1)
+
+anyNA(x1)
+
+
+#Other Special Values
+
+#Inf is infinity. You can have either positive or negative infinity.
+
+1/0
+-1/0
+
+0/0
+
+
+```
+
+
+
+### 2. R List
+
+R list is the object which contains elements of different types – *like strings, numbers, vectors and another list inside it*.
+
+```{r}
+
+
+# Create a list containing strings, numbers, vectors and a logical values
+
+list_data <- list("Red", "Green", c(21,32,11), TRUE, 51.23, 119.1)
+list_data
+
+#Accessing List Elements
+
+list_data[1]
+list_data[length(list_data)]
+
+list1 = list(1,2,3,4,5,6,7,8,9,10)
+
+list1[8]
+
+list1[8] = 80
+list1
+
+
+# Create two lists.
+list1 <- list(1,2,3)
+list2 <- list("Sun","Mon","Tue")
+list3 <- list(1:3)
+
+# Merge the two lists.
+merged.list <- c(list1,list2,list3)
+
+# Print the merged list.
+print(merged.list)
+
+
+# Converting List to Vector
+
+#we use the unlist() function to convert list to vector.
+
+# Create lists.
+list1 <- list(1:5)
+print(list1)
+list1
+list1[[1]][1]
+list1[[1]][5]
+
+list2 <-list(10:14)
+print(list2)
+
+
+# Convert the lists to vectors.
+v1 <- unlist(list1)
+v2 <- unlist(list2)
+
+print(v1)
+print(v2)
+
+length(v1)
+length(v2)
+
+
+add = v1 + v2
+sub = v1 - v2
+mult = v1 * v2
+div = v1 / v2
+```
+
+
+### 3. R Matrix
+
+In a matrix, numbers are arranged in a fixed number of rows and columns and usually, the numbers are the real numbers. *All the data elements must share a common basic type.*
+
+
+`Funtion - matrix()`
+
+```{r}
+matrix()
+```
+
+```{r}
+mat <- matrix (
+c(2 , 4, 3, 1, 5, 7),       # the data elements
+nrow =2,                   # no. of rows
+ncol =3,                   # no. of columns
+byrow = TRUE)
+
+mat
+
+# An element at the mth row and nth column 
+mat[2, 3]
+
+# To extract only the mth row of our matrix ‘mat’
+mat[2,]
+
+# To extract only the nth column of our matrix ‘mat’
+mat[,3]
+
+```
+
+Creating R matrix through the arrangement of elements sequentially by row
+```{r}
+arrang_row <- matrix(c(4:15), nrow = 4, byrow = TRUE) #Creating our matrix and arranging it by row
+print(arrang_row) #Printing our arranged matrix
+```
+Creating R matrix by arranging elements sequentially by column
+
+```{r}
+arrang_col <- matrix(c(4:15), ncol = 4, byrow = FALSE)       #Creating our matrix and arranging it by column
+
+print(arrang_col)    #Printing our arranged matrix 
+```
+
+#### Defining names of columns and rows in a matrix
+
+```{r}
+rows = c("row1", "row2", "row3", "row4")     #Creating our character vector of row names
+
+cols = c("colm1", "colm2", "colm3")          #Creating our character vector of column names
+
+mat <- matrix(c(4:15), nrow = 4, byrow = TRUE, dimnames = list(rows, cols) )   
+#creating our matrix mat and assigning our vectors to dimnames
+
+print(mat)                    #Printing our matrix
+```
+
+#### Modify Matrix in R
+
+Assign a Single Element
+
+```{r}
+mat
+mat[2,2] = 20 # replae single element
+mat
+mat[,2] = c(2,2,2,2) # Replace column
+mat
+mat[3,] = c(2,2,2) # Replace row
+mat
+```
+
+Use of Relation Operators
+
+```{r}
+mat[mat == 2] <- 0     #Replacing elements that are equal to 2 with 0
+mat
+
+mat[mat < 10] <- 0       #Replacing elements that are less with 10 with 0
+mat
+
+
+```
+
+
+Addition of Rows and Columns
+
+```{r}
+new_mat = matrix(1:12, nrow = 3, ncol = 3)  # Creating a new matrix
+new_mat
+
+# add a column to our matrix ‘new_mat’ using cbind() function
+
+new_mat = cbind(new_mat, c(1,2,3))
+new_mat
+
+# add a row using the rbind() function
+
+new_mat = rbind(new_mat, c(1,2,3,4))
+new_mat
+
+# dimension of the matrix ‘new_mat’ using the dim() function
+dim(new_mat)
+
+# modify the dimension of the matrix 
+dim(new_mat) <- c(2,8)
+new_mat
+
+# transpose of the matrix using the t() function
+t(new_mat)
+```
+
+### R Matrix Operations
+1. Addition (+)
+
+```{r}
+mat1 <- matrix(data = 1:8, nrow = 4, ncol = 4) #Creating our first matrix mat1 
+mat1
+mat2 <- matrix(data = 1:16, nrow = 4, ncol = 4) #Creating our second matrix mat2
+mat2
+
+sum <- mat1 + mat2 #Adding our two matrices
+print(sum) #Printing the sum
+```
+
+2. Subtraction (-)
+
+```{r}
+sub <- mat1 - mat2 #Adding our two matrices
+print(sub) #Printing the sum
+```
+
+3. Matrix Multiplication (By Constant)
+
+```{r}
+prod <- mat1*4 #Multiplying matrix mat1 with constant value 4
+print(prod) #Printing the product
+```
+
+4. Multiplication (*)
+
+```{r}
+prod <- mat1*mat2 #Multiplying matrix mat1 with mat2
+print(prod) #Printing the product
+```
+
+5. Division (/)
+
+```{r}
+div <- mat1/mat2 #Division of mat1 and mat2 
+print(div) #Printing the division
+```
+
+
+## R Array 
+
+R arrays are the data objects which can store data in more than two dimensions. In arrays, data is stored in the form of matrices, rows, and columns. 
+
+An array is created using the `array()` function.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
