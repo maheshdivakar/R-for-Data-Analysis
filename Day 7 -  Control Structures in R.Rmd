@@ -1,0 +1,218 @@
+---
+title: "Day 7 - Control Structures in R"
+author: "MAHESH DIVAKARAN"
+date: "1/26/2021"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Control Structures in R - Loops in R
+
+To control the execution of the expressions flow in R we use the control structures. There are eight types of control structures in R. 
+
+* if
+* if-else
+* for
+* nested loops
+* while
+* repeat and break
+* next
+* return
+
+## 1. if Condition in R
+To carried out a task/command only `if` this condition is returned as *TRUE*.
+
+**Syntax**
+
+`if (test_expression) {statement}`
+
+
+```{r, echo=TRUE}
+#Example
+x = sample(x = 1:100, size = 1,replace = F)
+x
+
+if(x %% 2 == 0 ){
+  print(paste(x, " is an even number."))
+}
+
+```
+
+## 1. if Condition in R
+
+```{r, echo=TRUE}
+# Example 2 
+values <- 1:10                                        
+if (sample(values,1) <= 10)                               
+print(paste(values, "is less than or equal to 10"))
+```
+
+## 2. if-else Condition in R
+
+**Syntax**
+
+`if (test_expression) {
+statement
+} else {
+statement
+}
+`
+
+```{r, echo=TRUE}
+#Example
+x
+
+if(x %% 2 == 0 ){
+  print(paste(x, " is an even number."))
+}else{
+  print(paste(x, " is an odd number."))
+}
+```
+
+## 2. if-else Condition in R
+
+```{r,echo=TRUE}
+#example 2
+val1 = 10           #Creating our first variable val1
+val2 = 5            #Creating second variable val2
+if (val1 > val2){   #Executing Conditional Statement based on the comparison 
+  print("Value 1 is greater than Value 2")
+} else if (val1 < val2){
+  print("Value 1 is less than Value 2")
+}
+```
+
+## 3. for Loop in R
+
+A *loop* is a sequence of instructions that is repeated until a certain condition is reached.  for, while and repeat, with the additional clauses break and next are used to construct loops.
+`for` loop is executed until a known number of times(finite).
+
+**Syntax**
+
+`for(test_expression){statement}`
+
+```{r, echo=TRUE}
+# Example
+values <- c(1,2,3,4,5) 
+for(id in 1:5){ 
+  print(values[id])
+}
+```
+## 4. Nested Loop in R
+
+A loop inside another loop is defined as **nested loop**.
+
+```{r,echo=TRUE}
+## Create a matrix
+
+mat <- matrix(1:10, 2)
+mat
+```
+## 4. Nested Loop in R
+```{r,echo=TRUE}
+#Example
+for (id1 in seq(nrow(mat))) {
+  for (id2 in seq(ncol(mat))) {
+    print(mat[id1, id2])
+  }
+}
+```
+
+## 5. while Loop in R
+
+In R programming, while loops are used to loop until a specific condition is met.
+
+**Syntax**
+
+`while (test_expression){statement}`
+
+```{r,echo=TRUE}
+i <- 1
+while (i < 6) {
+print(i)
+i = i+1
+}
+```
+
+## 6. repeat and break Statement in R
+
+We use `break` statement inside a loop (repeat, for, while) to stop the iterations and flow the control outside of the loop. 
+A `repeat` loop is used to iterate over a block of code, multiple numbers of times. 
+
+**Syntax**
+
+`repeat {`
+simulations; generate some value have an expectation if within some range, then exit the loop
+`if ((value - expectation) <= threshold) {`
+`break`
+`}`
+`}`
+```{r, echo=TRUE}
+#Example
+val <- 5
+repeat {
+  print(val)
+  val <- val+1
+  if (val == 10){
+    break
+  }
+}
+```
+## 6. repeat and break Statement in R
+
+```{r, echo=TRUE}
+# Example of Break Statement in R
+values = 1:10
+for (id in values){
+  if (id == 4){
+    break
+  }
+  print(id)
+}
+```
+
+## 7. next Statement in R
+
+`next` jumps to the next cycle without completing a particular iteration.
+
+```{r,echo=TRUE}
+# Example
+x = 1: 4
+for (i in x) {
+if (i == 2) {
+next
+}
+print(i)
+}
+```
+
+## 8. return Statement in R
+
+`return()` function  do processing and return back the result.
+
+**Syntax**
+`return(expression)`
+
+```{r, echo=T}
+check <- function(x) {
+if (x > 0) {
+result <- "Positive"
+} else if (x < 0) {
+result <- "Negative"
+} else {
+result <- "Zero"
+}
+return(result)
+}
+
+check(7852)
+```
+
+## Thank You!!
+
+
+
+
