@@ -1,0 +1,165 @@
+---
+title: "Day 8 - Functions in R"
+author: "MAHESH DIVAKARAN"
+date: "1/27/2021"
+output: pdf_document
+---
+
+# Functions in R
+
+## Moving from Scripts to R Function
+
+R function provides two major advantages over the script:
+
+* Functions can work with any input. You can provide diverse input data to the functions.
+* The output of the function is an object that allows you to work with the result.
+
+```{r}
+source('percentage_fn.R')
+```
+
+## Transforming the Script into R Function
+
+**Stracture of the function**
+
+function_name = `function`(_input_variable(s)){
+staements
+`return`(_output)
+}
+
+```{r}
+# Creating the function
+
+percentage_fn <- function(frac){
+  percentage <- round(frac * 100, digits = 1)
+  out <- paste(percentage, "%", sep = " ")
+  return(out)
+}
+```
+
+
+```{r}
+#Calling percentage_fn
+percentage_fn(0.3654)
+```
+```{r}
+#Calling percentage_fn
+percentage_fn(.00869)
+```
+### One more example
+
+
+```{r}
+basic_math <- function(a,b){
+  add = a + b
+  sub = a - b
+  mul = a * b
+  div = a / b
+  print(paste("The sum of a and b is ", add ))
+  print(paste("The difference of a and b is ",sub))
+  print(paste("The product of a and b is ", mul))
+  print(paste("The fraction of a and b is",round(div,3)))
+
+}
+```
+
+### Run the basic_math() function
+```{r}
+basic_math(4,6)
+```
+
+```{r}
+basic_math(854,966)
+```
+
+## R Vector Functions
+
+`rep()`, `seq()`, `all()`, `any()`, `c()`
+
+```{r}
+# 1. R rep() Function
+
+rep(c(0, 0, 7), times = 4)
+
+rep(c(2, 4, 2), each = 2)
+
+# 2. R seq() Function
+
+seq(from = 4.5, to = 3.0, by = -0.5)
+
+seq(1,16)
+
+seq(10,100,5)
+
+# 3. R any() Function
+
+a = seq(10,100,5)
+a
+any( a > 100)
+
+# 4. R all() Function
+
+all(a > 0)
+
+
+```
+
+## R Numeric Functions
+
+Function                          Description \
+
+*abs(x)                              absolute value \
+*ceiling(x)                          ceiling(3.475) is 4 \
+*sqrt(x)                             square root \
+*floor(x)                            floor(3.475) is 3 \ 
+*log(x)                              natural logarithm \
+*trunc(x)                            trunc(5.99) is 5 \
+*round(x, digits=n)                  round(3.475, digit=2) is 3.48 \
+*log10(x)                            common logarithm \
+*signif(x, digits=n)                 signif(3.475, digit=2) is 3.5 \
+*exp(x)                              e^x \
+*cos(x), sin(x), tan(x)              also acos(x), cosh(x), acosh(zx) etc \
+
+
+## Character Functions in R
+
+```{r}
+# 1. grep(pattern, x , ignore.case=FALSE, fixed=FALSE)
+
+grep("A", c("b", "A", "c"), fixed = TRUE)
+
+grep("an",c("an", "in", "and","back"),fixed = FALSE)
+
+# 2. substr(x, start=n1, stop=n2)
+string = "abcdef"
+substr(string,2,4)
+
+substr(string,2,4) <- "2222"
+string
+
+# 3. strsplit
+
+strsplit("abc", "")
+
+# 4. sub(pattern, replacement, x, ignore.case =FALSE, fixed=FALSE)
+
+df<-"R is a collaborative project with many contributors"
+#replaces the string 
+sub('R','R language',df)
+
+# 5. toupper(string)
+
+toupper(df)
+
+# 6. tolower(string)
+
+tolower(df)
+
+
+# 7. paste(…, sep=””)
+
+paste("string", 1:3, sep = "")
+paste(df,c(1,2,3,4))
+```
+
+
