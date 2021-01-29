@@ -1,0 +1,39 @@
+---
+title: "Day 10- R Data Interfaces"
+author: "MAHESH DIVAKARAN"
+date: "1/29/2021"
+output: html_document
+---
+
+# R Data Interfaces
+
+In R, we can read data from files stored outside the R environment. We can also write data into files which will be stored and accessed by the operating system. R can read and write into various file formats like csv, excel, xml etc.
+
+
+## Getting and Setting the Working Directory
+
+Check which directory the R workspace is pointing to using the `getwd()` function. Set a new working directory using `setwd()` function.
+
+```{r}
+# Get and print current working directory.
+
+getwd()
+
+# Set current working directory.
+
+setwd("/cloud/project/Day 10")
+
+# Get and print current working directory.
+
+print(getwd())
+
+
+```
+
+
+
+## R - CSV Files
+
+
+
+
