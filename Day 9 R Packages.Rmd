@@ -145,6 +145,7 @@ print(ships)
 Now we melt the data to organize it, converting all columns other than type and year into multiple rows.
 
 ```{r}
+library(reshape)
 molten.ships <- melt(ships, id = c("type","year"))
 print(molten.ships)
 ```
