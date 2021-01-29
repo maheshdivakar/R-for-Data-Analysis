@@ -6,7 +6,7 @@
   <meta http-equiv="Content-Style-Type" content="text/css" />
   <meta name="generator" content="pandoc" />
   <meta name="author" content="MAHESH DIVAKARAN" />
-  <title>Day 9 R Packages</title>
+  <title>Day 9 R Packages and Data Reshaping in R</title>
   <style type="text/css">
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
@@ -148,7 +148,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </head>
 <body>
 <div class="slide titlepage">
-  <h1 class="title">Day 9 R Packages</h1>
+  <h1 class="title">Day 9 R Packages and Data Reshaping in R</h1>
   <p class="author">
 MAHESH DIVAKARAN
   </p>
@@ -193,6 +193,51 @@ MAHESH DIVAKARAN
 <p><code>library(&quot;package Name&quot;, lib.loc = &quot;path to library&quot;)</code></p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(XML)</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dichromat)</span></code></pre></div>
+</div>
+<div id="r---data-reshaping" class="title-slide slide section level1">
+<h1>R - Data Reshaping</h1>
+
+</div>
+<div id="joining-columns-and-rows-in-a-data-frame" class="slide section level2">
+<h1>1. Joining Columns and Rows in a Data Frame</h1>
+<p>We can join multiple vectors to create a data frame using the <code>cbind()</code> function. Also we can merge two data frames using <code>rbind()</code> function.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create vector objects.</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>city <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Tampa&quot;</span>,<span class="st">&quot;Seattle&quot;</span>,<span class="st">&quot;Hartford&quot;</span>,<span class="st">&quot;Denver&quot;</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>state <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;FL&quot;</span>,<span class="st">&quot;WA&quot;</span>,<span class="st">&quot;CT&quot;</span>,<span class="st">&quot;CO&quot;</span>)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>zipcode <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">33602</span>,<span class="dv">98104</span>,<span class="dv">06161</span>,<span class="dv">80294</span>)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine above three vectors into one data frame.</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>addresses <span class="ot">&lt;-</span> <span class="fu">cbind</span>(city,state,zipcode)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>addresses</span></code></pre></div>
+<pre><code>##      city       state zipcode
+## [1,] &quot;Tampa&quot;    &quot;FL&quot;  &quot;33602&quot;
+## [2,] &quot;Seattle&quot;  &quot;WA&quot;  &quot;98104&quot;
+## [3,] &quot;Hartford&quot; &quot;CT&quot;  &quot;6161&quot; 
+## [4,] &quot;Denver&quot;   &quot;CO&quot;  &quot;80294&quot;</code></pre>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create another data frame with similar columns</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>new.address <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>   <span class="at">city =</span> <span class="fu">c</span>(<span class="st">&quot;Lowry&quot;</span>,<span class="st">&quot;Charlotte&quot;</span>),</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>   <span class="at">state =</span> <span class="fu">c</span>(<span class="st">&quot;CO&quot;</span>,<span class="st">&quot;FL&quot;</span>),</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>   <span class="at">zipcode =</span> <span class="fu">c</span>(<span class="st">&quot;80230&quot;</span>,<span class="st">&quot;33949&quot;</span>),</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>   <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>new.address</span></code></pre></div>
+<pre><code>##        city state zipcode
+## 1     Lowry    CO   80230
+## 2 Charlotte    FL   33949</code></pre>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine rows form both the data frames.</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>all.addresses <span class="ot">&lt;-</span> <span class="fu">rbind</span>(addresses,new.address)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>all.addresses</span></code></pre></div>
+<pre><code>##        city state zipcode
+## 1     Tampa    FL   33602
+## 2   Seattle    WA   98104
+## 3  Hartford    CT    6161
+## 4    Denver    CO   80294
+## 5     Lowry    CO   80230
+## 6 Charlotte    FL   33949</code></pre>
 </div>
 
   <!-- dynamically load mathjax for compatibility with self-contained -->

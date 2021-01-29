@@ -1,5 +1,5 @@
 ---
-title: "Day 9 R Packages"
+title: "Day 9 R Packages and Data Reshaping in R"
 author: "MAHESH DIVAKARAN"
 date: "1/28/2021"
 output: slidy_presentation
@@ -64,6 +64,98 @@ A package is loaded using the following command −
 library(XML)
 library(dichromat)
 
+```
+
+
+
+
+# R - Data Reshaping
+
+## 1. Joining Columns and Rows in a Data Frame
+
+We can join multiple vectors to create a data frame using the `cbind()` function. Also we can merge two data frames using `rbind()` function.
+
+```{r}
+# Create vector objects.
+city <- c("Tampa","Seattle","Hartford","Denver")
+state <- c("FL","WA","CT","CO")
+zipcode <- c(33602,98104,06161,80294)
+
+# Combine above three vectors into one data frame.
+addresses <- cbind(city,state,zipcode)
+
+addresses
+
+
+# Create another data frame with similar columns
+new_address <- data.frame(
+   city = c("Lowry","Charlotte"),
+   state = c("CO","FL"),
+   zipcode = c("80230","33949"),
+   stringsAsFactors = FALSE
+)
+
+new_address
+
+# Combine rows form both the data frames.
+all.addresses <- rbind(addresses,new_address)
+
+all.addresses
+```
+
+
+## 2. Merging Data Frames
+
+We can merge two data frames by using the `merge()` function.
+
+
+```{r}
+library(MASS)
+Pima.te
+Pima.tr
+
+nrow(Pima.te)
+nrow(Pima.tr)
+```
+
+
+```{r}
+merged.Pima <- merge(x = Pima.te, y = Pima.tr,
+   by.x = c("bp", "bmi"),
+   by.y = c("bp", "bmi"),
+)
+merged.Pima
+NROW(merged.Pima)
+
+```
+
+
+## Melting and Casting
+
+One of the most interesting aspects of R programming is about changing the shape of the data in multiple steps to get a desired shape. The functions used to do this are called melt() and cast().
+
+```{r}
+library(MASS)
+print(ships)
+```
+
+**Melt the Data**
+
+
+Now we melt the data to organize it, converting all columns other than type and year into multiple rows.
+
+```{r}
+molten.ships <- melt(ships, id = c("type","year"))
+print(molten.ships)
+```
+
+**Cast the Molten Data**
+
+Cast the molten data into a new form where the aggregate of each type of ship for each year is created. It is done using the `cast()` function.
+
+```{r}
+recasted.ship <- cast(molten.ships, type+year~variable,sum)
+print(recasted.ship)
 ```
 
 
