@@ -1,0 +1,76 @@
+---
+title: "Day 11 - R Datasets"
+author: "MAHESH DIVAKARAN"
+date: "2/1/2021"
+output: html_document
+---
+
+## Importing Data to R
+
+
+
+## Input as CSV File
+
+*The csv file is a text file in which the values in the columns are separated by a comma. Let's consider the following data present in the file named input.csv.*
+
+id,name,salary,start_date,dept\
+1,Rick,623.3,2012-01-01,IT\
+2,Dan,515.2,2013-09-23,Operations\
+3,Michelle,611,2014-11-15,IT \
+4,Ryan,729,2014-05-11,HR \
+5,Gary,843.25,2015-03-27,Finance \
+6,Nina,578,2013-05-21,IT \
+7,Simon,632.8,2013-07-30,Operations \
+8,Guru,722.5,2014-06-17,Finance
+
+
+# Reading a CSV File
+
+`read.csv()` function to read a CSV file available in your current working directory
+
+```{r}
+data <- read.csv("input.csv")
+data
+```
+**Importing data from different Location with more import options**
+
+`read.csv(file, header = TRUE, sep = ",", quote = "\"", dec = ".", fill = TRUE, comment.char = "",  na.strings = "NA", strip.white = TRUE, stringsAsFactors = FALSE)`
+
+
+
+```{r}
+data1 = read.csv("/cloud/project/Day 11/input1.csv",  sep = ",", header = T, na.strings = "NA", stringsAsFactors = T,dec = ".")
+
+data1
+
+```
+
+```{r}
+class(data$dept)
+
+class(data1$dept)
+```
+
+**Importing data from web**
+```{r}
+#pizza_country_1990_2012.csv
+data_web = read.csv("https://raw.githubusercontent.com/poldham/opensource-patent-analytics/master/2_datasets/infographic/pizza_country_1990_2012.csv",sep = ",", na.strings = "NA", strip.white = TRUE, stringsAsFactors = FALSE)
+
+#data_web
+
+#To see top 6 rows
+head(data_web)
+#To see bottom 6 rows
+tail(data_web)
+```
+
+
+
+
+
+
+
+
+
+
+
