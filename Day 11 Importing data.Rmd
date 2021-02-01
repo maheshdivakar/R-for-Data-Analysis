@@ -65,11 +65,38 @@ tail(data_web)
 ```
 
 
+## R - Excel File
 
+Microsoft Excel is the most widely used spreadsheet program which stores data in the .xls or .xlsx format. 
 
+### Install xlsx Package
 
+You can use the following command in the R console to install the "xlsx" package.
+```{r}
+install.packages("xlsx")
 
+```
+### Verify and Load the "xlsx" Package
 
+```{r}
+# Verify the package is installed.
+any(grepl("xlsx",installed.packages()))
+
+# Load the library into R workspace.
+library("xlsx")
+
+```
+### Reading the Excel File
+```{r}
+# Read the first worksheet in the file input.xlsx.
+data <- read.xlsx("/cloud/project/Day 11/ewaste.xlsx", sheetIndex = 1)
+head(data)
+```
+
+```{r}
+dim(data)
+
+```
 
 
 
