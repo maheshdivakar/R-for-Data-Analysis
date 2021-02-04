@@ -1,0 +1,101 @@
+---
+title: "Day 12 - R Statistics"
+author: "MAHESH DIVAKARAN"
+date: "2/2/2021"
+output: html_document
+---
+
+## R for Statistics
+
+
+```{r}
+data = read.csv("/cloud/project/Day 11/input1.csv", stringsAsFactors = T, dec = ".", na.strings = "NA")
+head(data)
+```
+
+### R - Mean, Median and Mode
+
+```{r}
+#Mean
+data.salary_mean = mean(data$salary)
+data.salary_mean
+#Median
+data.salary_median = median(data$salary)
+data.salary_median
+#Mode
+data.salary_mode = mode(data$salary)
+data.salary_mode
+
+# Create the function for Mode.
+getmode <- function(v) {
+   uniqv <- unique(v)
+   uniqv[which.max(tabulate(match(v, uniqv)))]
+}
+
+data.salary_mode = getmode(data$salary)
+data.salary_mode
+
+
+#standerd deviation
+sd(data$salary)
+
+#variance 
+var(data$salary)
+```
+
+```{r}
+# Create a vector. 
+x <- c(12,7,3,4.2,18,2,54,-21,8,-5)
+x
+
+# Find Mean.
+result.mean <- mean(x)
+result.mean
+
+# Find the median.
+median.result <- median(x)
+print(median.result)
+
+# Calculate the mode using the user function.
+result.mode <- getmode(x)
+result.mode
+
+
+#standerd deviation
+sd(x)
+
+#variance 
+var(x)
+```
+
+
+
+```{r}
+data = read.csv("/cloud/project/Day 10/ds5.csv",  dec = ".", na.strings = "NA")
+head(data)
+```
+
+
+```{r}
+#Stracture of data
+str(data)
+#Converting Population to numeric
+data$Population = as.integer(data$Population)
+#Converting Deaths to numeric
+data$Deaths = as.numeric(data$Deaths)
+#Againg checking Data stracture
+str(data)
+```
+
+
+```{r}
+# Find mean dropping NA values.
+mean(data$Deaths,na.rm = T)
+```
+
+
+
+```{r}
+
+
+```

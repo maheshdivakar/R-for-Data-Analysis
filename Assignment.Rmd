@@ -1,0 +1,125 @@
+---
+title: "Assignment 2"
+author: "MAHESH DIVAKARAN"
+date: "2/4/2021"
+output: html_document
+---
+
+# Assignment 2
+**1. Read the dataset from "https://www.stats.govt.nz/assets/Uploads/Government-finance-statistics-general-government/Government-finance-statistics-general-government-Year-ended-June-2020/Download-data/government-finance-statistics-general-government-year-ended-june-2020-csv.csv" and find the datatypes of the variables. If there are some charecter variables, convert them to factors in the next step. Show the data is read properly by printing first few rows.**
+```{r}
+#Read the dataset
+data = read.csv("https://www.stats.govt.nz/assets/Uploads/Government-finance-statistics-general-government/Government-finance-statistics-general-government-Year-ended-June-2020/Download-data/government-finance-statistics-general-government-year-ended-june-2020-csv.csv")
+
+head(data)
+
+#find the datatypes of the variables.
+str(data)
+```
+**If there are some charecter variables, convert them to factors in the next step. Show the data is read properly by printing first few rows.**
+
+```{r}
+#Read the dataset
+data = read.csv("https://www.stats.govt.nz/assets/Uploads/Government-finance-statistics-general-government/Government-finance-statistics-general-government-Year-ended-June-2020/Download-data/government-finance-statistics-general-government-year-ended-june-2020-csv.csv", stringsAsFactors = T)
+
+#printing first few rows.
+head(data)
+
+#find the datatypes of the variables.
+str(data)
+```
+
+**2. Create a 3*3 matrix A using the following data [4,5,7,8,0,9,5,4,8]. Find the transpose of the matrix.**
+
+```{r}
+#Create a 3*3 matrix A
+A = matrix(c(4,5,7,8,0,9,5,4,8),3,3)
+A
+
+#Find the transpose of the matrix
+A_trans = t(A)
+A_trans
+```
+
+**3. Create a 3*3 matrix B using the following data [14,52,75,89,10,91,51,44,28]. Using matrix A and B find A + B, A - B and A*B.**
+```{r}
+#Create a 3*3 matrix B
+B = matrix(c(14,52,75,89,10,91,51,44,28),3,3)
+B
+
+#A + B
+A + B
+
+#A-B
+A-B
+
+#A*B
+A*B
+
+#A/B
+A/B
+```
+
+
+**4. Create 2 vectors with 7 elements each and perform all the vector operations.**
+
+```{r}
+V1 = c(1,2,3,4,5,6,7)
+V2 = c(7,6,5,4,3,2,1)
+
+V1+V2
+
+V1-V2
+
+V1*V2
+
+V1/V2
+
+cbind(V1,V2)
+
+rbind(V1,V2)
+
+as.numeric(V1)
+
+as.character(V2)
+
+data.frame(V1,V2)
+```
+
+**5. Create the following vectors and create a data frame using those vectors. Also find the charectristics of the data frame.**
+
+id,name,salary,start_date,dept\
+1,Rick,623.3,2012-01-01,IT\
+2,Dan,515.2,2013-09-23,Operations\
+3,Michelle,611,2014-11-15,IT \
+4,Ryan,729,2014-05-11,HR \
+5,Gary,843.25,2015-03-27,Finance \
+6,Nina,578,2013-05-21,IT \
+7,Simon,632.8,2013-07-30,Operations \
+8,Guru,722.5,2014-06-17,Finance
+
+
+```{r}
+v1 = c("id","name","salary","start_date","dept")
+v2 = c(1,"Rick",623.3,2012-01-01,"IT")
+v3 = c(2,"Dan",515.2,2013-09-23,"Operations")
+v4 = c(3,"Michelle",611,2014-11-15,"IT")
+v5 = c(4,"Ryan",729,2014-05-11,"HR")
+v6 = c(5,"Gary",843.25,2015-03-27,"Finance")
+v7 = c(6,"Nina",578,2013-05-21,"IT")
+v8 = c(7,"Simon",632.8,2013-07-30,"Operations")
+v9 = c(8,"Guru",722.5,2014-06-17,"Finance")
+
+
+# create a data frame using those vectors.
+
+data_frame = data.frame(rbind(v1,v2,v3,v4,v5,v6,v7,v8,v9))
+
+data_frame
+```
+
+
+
+
+
+
