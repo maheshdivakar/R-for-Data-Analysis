@@ -1,0 +1,383 @@
+---
+title: "Day 14 - Data Visualization in R"
+author: "MAHESH DIVAKARAN"
+date: "2/5/2021"
+output: html_document
+---
+
+# Data Visualization in R
+
+* With the help of visualization techniques, humans can easily gain insights about the hidden patterns in data which might otherwise be neglected. 
+* Using data visualization, one can work with large datasets to efficiently obtain key insights about it. 
+
+### R Visualization Packages
+
+* r-base
+* ggplot2
+* plotly
+* shiny
+* googleViz
+* geofacet
+* leaflet
+* ggiraph
+* tidyquant
+* ....
+
+* **Standard Graphics**
+* Scatterplots
+* Boxplots
+* Piecharts
+* Barplots etc.
+
+* **Statistical Graphic**
+* Data
+* Aesthetic Mappings
+* Geometric Objects
+* Statistical Transformations
+* Scales
+* Coordinates system
+* Faceting
+* Wordmaps
+* Correlations 
+* etc...
+
+### R - Pie Charts
+
+`pie(x, labels, radius, main, col, clockwise)`
+
+* `x` is a vector containing the numeric values used in the pie chart.
+
+* `labels` is used to give description to the slices.
+
+* `radius` indicates the radius of the circle of the pie chart.(value between −1 and +1).
+
+* `main` indicates the title of the chart.
+
+* `col` indicates the color palette.
+
+* `clockwise` is a logical value indicating if the slices are drawn clockwise or anti clockwise.
+
+```{r}
+# Create data for the graph.
+x <- c(21, 62, 10, 53)
+labels <- c("London", "New York", "Singapore", "Mumbai")
+
+# Plot the chart.
+pie(x,labels, main = "Pie Chart", col = rainbow(5))
+
+```
+
+```{r}
+# Create data for the graph.
+x <- c(21, 62, 10, 53)
+labels <- c("London", "New York", "Singapore", "Mumbai")
+
+# Give the chart file a name.
+png(file = "city.png")
+
+# Plot the chart.
+pie(x,labels, main = "Pie Chart", col = rainbow(5))
+
+# Save the file.
+dev.off()
+```
+
+
+### Slice Percentages and Chart Legend
+
+```{r}
+
+piepercent<- round(100*x/sum(x), 1)
+
+# Plot the chart.
+pie(x, labels = piepercent, main = "City pie chart",col = rainbow(length(x)))
+legend("topright", c("London","New York","Singapore","Mumbai"), cex = 0.8,
+   fill = rainbow(length(x)))
+```
+
+
+### 3D Pie Chart
+
+```{r}
+# Get the library.
+library(plotrix)
+
+
+# Give the chart file a name.
+png(file = "3d_pie_chart.jpg")
+
+# Plot the chart.
+pie3D(x,labels = labels,explode = 0.1, main = "Pie Chart of Countries ")
+
+# Save the file.
+dev.off()
+```
+## R - Bar Charts
+
+`barplot(H,xlab,ylab,main, names.arg,col)`
+
+* `H` is a vector or matrix containing numeric values used in bar chart.
+* `xlab` is the label for x axis.
+* `ylab` is the label for y axis.
+* `main` is the title of the bar chart.
+* `names.arg` is a vector of names appearing under each bar.
+* `col` is used to give colors to the bars in the graph.
+
+```{r}
+# Create the data for the chart
+H <- c(7,12,28,3,41)
+label <- c("Mar","Apr","May","Jun","Jul")
+
+# Plot the bar chart 
+barplot(H, names.arg=label ,xlab="Month", ylab="Revenue", col="blue", main="Revenue chart",border="red")
+
+
+
+# Give the chart file a name
+png(file = "barchart_months_revenue.png")
+
+# Plot the bar chart 
+barplot(H,names.arg=label,xlab="Month",ylab="Revenue",col="blue",main="Revenue chart",border="red")
+
+# Save the file
+dev.off()
+
+```
+### Group Bar Chart and Stacked Bar Chart
+
+```{r}
+# Create the input vectors.
+colors <- c("green","orange","brown")
+months <- c("Mar","Apr","May","Jun","Jul")
+regions <- c("East","West","North")
+
+# Create the matrix of the values.
+Values <- matrix(c(2,9,3,11,9,4,8,7,3,12,5,2,8,10,11), nrow = 3, ncol = 5, byrow = TRUE)
+Values
+
+# Give the chart file a name
+png(file = "barchart_stacked.png")
+
+# Create the bar chart
+barplot(Values, main = "Total revenue", names.arg = months, xlab = "month", ylab = "revenue", col = colors)
+
+# Add the legend to the chart
+legend("topleft", regions, cex = 1.3, fill = colors)
+
+# Save the file
+dev.off()
+
+```
+
+## R - Histograms
+
+`hist(v,main,xlab,xlim,ylim,breaks,col,border)`
+
+* `v` is a vector containing numeric values used in histogram.
+
+* `main` indicates title of the chart.
+
+* `col` is used to set color of the bars.
+
+* `border` is used to set border color of each bar.
+
+* `xlab` is used to give description of x-axis.
+
+* `xlim` is used to specify the range of values on the x-axis.
+
+* `ylim` is used to specify the range of values on the y-axis.
+
+* `breaks` is used to mention the width of each bar.
+
+```{r}
+# Create data for the graph.
+v <-  c(9,13,21,8,36,22,12,41,31,33,19)
+
+
+# Create the histogram.
+hist(v,xlab = "Weight",col = "red",border = "blue", breaks = 9)
+```
+
+
+
+### Range of X and Y values
+
+```{r}
+# Create data for the graph.
+v <- c(9,13,21,8,36,22,12,41,31,33,19)
+
+# Give the chart file a name.
+png(file = "histogram_lim_breaks.png")
+
+# Create the histogram.
+hist(v,xlab = "Weight",col = "green",border = "red", xlim = c(0,40), ylim = c(0,5),
+   breaks = 5)
+
+# Save the file.
+dev.off()
+```
+## R - Line Graphs
+
+`plot(v,type,col,xlab,ylab)`
+
+* `v` is a vector containing the numeric values.
+
+* `type` takes the value "`p`" to draw only the points, "`l`" to draw only the lines and "`o`" to draw both points and lines.
+
+* `xlab` is the label for x axis.
+
+* `ylab` is the label for y axis.
+
+* `main` is the Title of the chart.
+
+* `col` is used to give colors to both the points and lines.
+
+```{r}
+# Create the data for the chart.
+v <- c(7,12,28,3,41)
+
+
+# Plot the bar chart. 
+plot(v,type = "o")
+plot(v,type = "l")
+```
+
+```{r}
+# Plot the bar chart.
+plot(v,type = "o", col = "red", xlab = "Month", ylab = "Rain fall",
+   main = "Rain fall chart")
+```
+
+
+### Multiple Line plots
+
+```{r}
+# Create the data for the chart.
+v <- c(7,12,28,3,41)
+t <- c(14,7,6,19,3)
+z <- c(25,1,23,20,31)
+
+# Give the chart file a name.
+#png(file = "line_chart_2_lines.jpg")
+
+# Plot the bar chart.
+plot(v,type = "o",col = "red", xlab = "Month", ylab = "Rain fall", 
+   main = "Rain fall chart")
+
+lines(t, type = "o", col = "blue")
+lines(z, type = "o", col = "green")
+
+# Save the file.
+#dev.off()
+```
+
+## R - Scatterplots
+
+`plot(x, y, main, xlab, ylab, xlim, ylim, axes)`
+
+```{r}
+input <- mtcars[,c('wt','mpg')]
+print(head(input))
+```
+
+```{r}
+# Plot the chart
+plot(x = input$wt,y = input$mpg)
+```
+
+```{r}
+# Plot the chart
+plot(x = input$wt,y = input$mpg,
+   xlab = "Weight",
+   ylab = "Milage",
+   xlim = c(2.5,5),
+   ylim = c(15,30),		 
+   main = "Weight vs Milage",
+   col = "red"
+)
+```
+
+## Data Visualization in R using ggplot2
+
+
+```{r}
+library(ggplot2)
+
+head(mtcars)
+# Basic barplot
+p <- ggplot(mtcars, aes(x=factor(cyl)))+
+  geom_bar(stat="count", width=0.5, fill="steelblue") +
+  theme_minimal()
+
+p
+```
+
+```{r}
+# Change barplot line colors by groups
+p <- ggplot(mtcars, aes(x=factor(cyl), y=mpg, color=cyl)) +
+  geom_bar(stat="identity", fill="white") +
+  theme_classic()
+p
+```
+
+```{r}
+# Change bar fill colors to blues
+p <- p+scale_fill_brewer(palette="Blues")
+p + theme(legend.position="top")
+p + theme(legend.position="bottom")
+# Remove legend
+p + theme(legend.position="none")
+```
+### Barplot with multiple groups
+
+
+```{r}
+df2 <- data.frame(supp=rep(c("VC", "OJ"), each=3),
+                dose=rep(c("D0.5", "D1", "D2"),2),
+                len=c(6.8, 15, 33, 4.2, 10, 29.5))
+head(df2)
+```
+
+
+```{r}
+# Stacked barplot with multiple groups
+ggplot(data=df2, aes(x=dose, y=len, fill=supp)) +
+  geom_bar(stat="identity") +
+  theme_light()
+# Use position=position_dodge()
+ggplot(data=df2, aes(x=dose, y=len, fill=supp)) +
+geom_bar(stat="identity", position=position_dodge())+
+  theme_void()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

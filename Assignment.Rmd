@@ -7,6 +7,7 @@ output: html_document
 
 # Assignment 2
 **1. Read the dataset from "https://www.stats.govt.nz/assets/Uploads/Government-finance-statistics-general-government/Government-finance-statistics-general-government-Year-ended-June-2020/Download-data/government-finance-statistics-general-government-year-ended-june-2020-csv.csv" and find the datatypes of the variables. If there are some charecter variables, convert them to factors in the next step. Show the data is read properly by printing first few rows.**
+
 ```{r}
 #Read the dataset
 data = read.csv("https://www.stats.govt.nz/assets/Uploads/Government-finance-statistics-general-government/Government-finance-statistics-general-government-Year-ended-June-2020/Download-data/government-finance-statistics-general-government-year-ended-june-2020-csv.csv")
@@ -86,7 +87,7 @@ as.character(V2)
 data.frame(V1,V2)
 ```
 
-**5. Create the following vectors and create a data frame using those vectors. Also find the charectristics of the data frame.**
+**5. Create the following vectors and create a data frame using those vectors. Also find the characteristics of the data frame.**
 
 id,name,salary,start_date,dept\
 1,Rick,623.3,2012-01-01,IT\
