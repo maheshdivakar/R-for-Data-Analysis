@@ -1,0 +1,97 @@
+---
+title: "Novel Corona Virus 2019 Analysis"
+output: html_notebook
+---
+
+# Novel Corona Virus 2019 Dataset
+### Day level information on covid-19 affected cases
+
+
+
+This dataset has daily level information on the number of affected cases, deaths and recovery from 2019 novel coronavirus. Please note that this is a time series data and so the number of cases on any given day is the cumulative number.
+
+The data is available from 22 Jan, 2020.
+
+## Variable Description
+* Sno - Serial number
+* ObservationDate - Date of the observation in MM/DD/YYYY
+* Province/State - Province or state of the observation (Could be empty when missing)
+* Country/Region - Country of observation
+* Last Update - Time in UTC at which the row is updated for the given province or country. (Not standardised and so please clean before using it)
+* Confirmed - Cumulative number of confirmed cases till that date
+* Deaths - Cumulative number of of deaths till that date
+* Recovered - Cumulative number of recovered cases till that date
+
+
+## Libraries
+```{r}
+#Import Libraries
+library(readr)
+
+```
+
+## Reading Dataset
+```{r}
+#Import dataset
+covid_data <- read_csv("Data/covid_19_data.csv")
+head(covid_data)
+```
+
+
+```{r}
+str(covid_data)
+```
+
+```{r}
+# Number of columns 
+length(covid_data)
+# Dimension of data(rows,columns)
+dim(covid_data)
+```
+
+```{r}
+summary(covid_data)
+```
+
+```{r}
+unique(covid_data$ObservationDate)
+unique(covid_data$`Province/State`)
+unique(covid_data$`Country/Region`)
+```
+
+```{r}
+#Plots to explore data
+plot(covid_data$Confirmed)
+barplot(covid_data$Confirmed)
+```
+```{r}
+#Checking Missing Values
+is.na(covid_data)
+
+summary(is.na(covid_data))
+```
+
+```{r}
+#Identifying less than zero values
+
+any(covid_data$Confirmed<=0)
+any(covid_data$Deaths<=0)
+any(covid_data$Recovered<=0)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
