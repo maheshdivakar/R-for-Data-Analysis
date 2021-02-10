@@ -350,6 +350,13 @@ geom_bar(stat="identity", position=position_dodge())+
   theme_void()
 ```
 
+```{r}
+# Use position=position_dodge()
+ggplot(data=df2, aes(x=dose, y=len, fill=supp)) +
+geom_bar(stat="identity", position=position_dodge())+
+   scale_fill_manual(values = c("green","red"))+
+  theme_void()
+```
 
 
 
