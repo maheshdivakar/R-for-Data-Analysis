@@ -28,6 +28,12 @@ BigMart sales data for 1559 products across 10 stores in different cities. certa
 ### Loading Libraries
 ```{r}
 library(readr)
+library(dplyr)
+library(ggplot2)
+library(caret)
+library(caretEnsemble)
+library(VIM)
+library(gridExtra)
 ```
 
 
@@ -170,23 +176,153 @@ ggplot(combi, aes(x= Item_Visibility, y = Item_Outlet_Sales)) +
 
 
 
+### Load Datasets
+
+```{r}
+big_mart = read_csv("/cloud/project/Data/Big Mart Sales.csv")
+head(train)
+
+```
+
+```{r}
+glimpse(big_mart)
+```
+
+```{r}
+summary(big_mart)
+```
+
+## Manipulating Dataset
 
 
 
+```{r}
+unique(big_mart$Item_Fat_Content)
+```
+**Cleaning Item_Fat_Content Variable**
+```{r}
+#Transforming "low fat" and "LF" to "Low Fat"
+index <- which(big_mart$Item_Fat_Content == "LF" | 
+                 big_mart$Item_Fat_Content == "low fat")
+
+big_mart[index, "Item_Fat_Content"] <- "Low Fat"
+
+#Transforming "reg" to "Regular
+index2 <- which(big_mart$Item_Fat_Content == "reg")
+
+big_mart[index2, "Item_Fat_Content"] <- "Regular"
+
+#Dropping Unused Levels
+big_mart$Item_Fat_Content <- factor(big_mart$Item_Fat_Content)
+
+unique(big_mart$Item_Fat_Content)
+```
+Imputing Missing Values
+```{r}
+#Using kNN imputation for missing values
+big_mart_imputed <- kNN(big_mart)
+big_mart_imputed <- big_mart_imputed %>% 
+    select(Item_Identifier:Item_Outlet_Sales)
+
+summary(big_mart_imputed)
+
+summary(is.na(big_mart_imputed))
+```
+
+### Impute Values for Outlet_Size
+```{r}
+#Outlet Identifier by Outlet Size Table
+table(big_mart_imputed$Outlet_Identifier, big_mart_imputed$Outlet_Size)
+
+```
+```{r}
+# Outlet Identifier by Outlet_Type Table
+table(big_mart_imputed$Outlet_Identifier, big_mart_imputed$Outlet_Type)
+
+```
+
+```{r}
+# Outlet Type by Outlet Size Table
+table(big_mart$Outlet_Type, big_mart_imputed$Outlet_Size)
+
+```
+
+```{r}
+# Imputing Small for OUT010 Location
+index3 <- which(big_mart_imputed$Outlet_Identifier == "OUT010")
+big_mart_imputed[index3, "Outlet_Size"] <- "Small"
+
+#Imputing Small for OUT017 Location
+index4 <- which(big_mart_imputed$Outlet_Identifier == "OUT017")
+big_mart_imputed[index4, "Outlet_Size"] <- "Medium"
+
+# Imputing Medium for OUT045 Location
+index5 <- which(big_mart_imputed$Outlet_Identifier == "OUT045")
+big_mart_imputed[index5, "Outlet_Size"] <- "Medium"
+
+# Dropping Unused Levels for Outlet Size Variable
+big_mart_imputed$Outlet_Size <- factor(big_mart_imputed$Outlet_Size)
+
+#Summary Cleaned Dataset
+summary(big_mart_imputed)
+```
+
+# Visualizing Data
+```{r}
+# Item Outlet Sales Histogram
+
+ggplot(big_mart_imputed, aes(x=Item_Outlet_Sales)) +
+  geom_histogram(binwidth = 200,colour = c("blue")) +
+  labs(title = "Item Outlet Sales Histogram", x = "Item Outlet Sales")+
+  theme_light()
+
+```
+
+```{r}
+# Item Outlet Sales Histogram by Outlet Identifier
+
+ggplot(big_mart_imputed, aes(x=Item_Outlet_Sales, fill = Outlet_Identifier)) +
+  geom_histogram(binwidth = 200) +
+  facet_wrap(~ Outlet_Identifier) +
+  labs(title = "Item Outlet Sales Histogram", x = "Item Outlet Sales") +
+  theme_minimal()
+```
+
+```{r}
+# Sales by Outlet Identifier
+
+ggplot(big_mart_imputed, aes(x = Outlet_Identifier,y = Item_Outlet_Sales)) +
+  geom_boxplot() +
+  labs(title = "Sales by Outlet Identifier", x = "Outlet Identifier", y = "Item Outlet Sales") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+```{r}
+# Item Outlet Sales by Item MRP and Outlet Identifier
+ggplot(big_mart_imputed, aes(x = Item_MRP,y = Item_Outlet_Sales)) +
+  geom_bin2d() +
+  facet_wrap(~ Outlet_Identifier) +
+  labs(title = "Item Outlet Sales by Item MRP and Outlet Identifier",
+       x = "Item MRP",
+       y = "Item Outlet Sales")
+```
+
+### Median Sales by Location
+```{r}
+
+sales = big_mart_imputed %>%
+  group_by(Outlet_Identifier) %>%
+  summarize(median_sales = median(Item_Outlet_Sales))%>%
+  arrange(desc(median_sales))
+
+sales
+```
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+```{r}
+# Correlation of Item Outlet Sales and Item MRP
+cor(big_mart_imputed$Item_MRP, big_mart_imputed$Item_Outlet_Sales)
+```
 
 
 
