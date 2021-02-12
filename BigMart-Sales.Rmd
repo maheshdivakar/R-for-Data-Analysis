@@ -409,16 +409,9 @@ train = combi[1:nrow(train),]
 head(train)
 dim(train)
 ```
-### Bivariate Analysis
+
 ```{r}
-p9 = ggplot(train) + geom_point(aes(Item_Weight, Item_Outlet_Sales), colour = "violet", alpha = 0.3) +
-     theme(axis.title = element_text(size = 8.5))
-p10 = ggplot(train) + geom_point(aes(Item_Visibility, Item_Outlet_Sales), colour = "violet", alpha = 0.3) +
-      theme(axis.title = element_text(size = 8.5))
-p11 = ggplot(train) + geom_point(aes(Item_MRP, Item_Outlet_Sales), colour = "violet", alpha = 0.3) +
-      theme(axis.title = element_text(size = 8.5))
-second_row_2 = plot_grid(p10, p11, ncol = 2)
-plot_grid(p9, second_row_2, nrow = 2)
+combi
 ```
 
 
