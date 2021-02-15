@@ -1,0 +1,582 @@
+---
+title: "Big Mart Sales Prediction"
+output: html_notebook
+---
+
+## Sales Prediction for Big Mart Outlets 
+
+BigMart sales data for 1559 products across 10 stores in different cities. certain variables of each product and store have been defined. The aim is to build a predictive model and predict the sales of each product at a particular outlet.
+
+
+| Variable                  	| Description                                                                                 	|
+|---------------------------	|---------------------------------------------------------------------------------------------	|
+| Item_Identifier           	| Unique product ID                                                                           	|
+| Item_Weight               	| Weight of product                                                                           	|
+| Item_Fat_Content          	| Whether the product is low fat or not                                                       	|
+| Item_Visibility           	| The % of total display area of all products in a store allocated to the particular product  	|
+| Item_Type                 	| The category to which the product belongs                                                   	|
+| Item_MRP                  	| Maximum Retail Price (list price) of the product                                            	|
+| Outlet_Identifier         	| Unique store ID                                                                             	|
+| Outlet_Establishment_Year 	| The year in which store was established                                                     	|
+| Outlet_Size               	| The size of the store in terms of ground area covered                                       	|
+| Outlet_Location_Type      	| The type of city in which the store is located                                              	|
+| Outlet_Type               	| Whether the outlet is just a grocery store or some sort of supermarket                      	|
+| Item_Outlet_Sales         	| Sales of the product in the particular store. This is the outcome variable to be predicted. 	|
+
+
+
+### Loading Libraries
+```{r}
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(caret)
+library(caretEnsemble)
+library(VIM)
+library(gridExtra)
+library(cowplot)
+library(data.table)
+library(corrplot)
+library(e1071)
+library(xgboost)
+```
+
+
+### Load Datasets
+
+```{r}
+train = read_csv("/cloud/project/Data/BigMartSales.csv")
+head(train)
+```
+
+
+```{r}
+# check dimensions ( number of row & columns) in data set
+
+dim(train)
+```
+
+```{r}
+#check the variables and their types in train
+str(train)
+```
+
+
+```{r}
+# Check if data has missing values
+table(is.na(train))
+
+summary(is.na(train))
+
+colSums(is.na(train))
+```
+
+### Summary of Train data
+
+```{r}
+summary(train)
+```
+
+### Graphical Representation of Variables
+
+```{r}
+#Item_Visibility ~ Item_Outlet_Sales
+ggplot(train, aes(x= Item_Visibility, y = Item_Outlet_Sales)) + 
+  geom_point(size = 2, color="navy") + 
+  xlab("Item Visibility") + ylab("Item Outlet Sales") + 
+  ggtitle("Item Visibility vs Item Outlet Sales") + 
+  theme_linedraw()
+```
+
+```{r}
+#Outlets vs Total Sales
+ggplot(train, aes(Outlet_Identifier, Item_Outlet_Sales)) + 
+  geom_bar(stat = "identity", color = "purple") +
+  theme(axis.text.x = element_text(angle = 70, vjust = 0.5, color = "black"))  +
+  ggtitle("Outlets vs Total Sales") + theme_bw()
+```
+
+
+```{r}
+# Item Type vs Sales
+ggplot(train, aes(Item_Type, Item_Outlet_Sales)) + 
+  geom_bar( stat = "identity",color = "blue") +
+  theme(axis.text.x = element_text(angle = 70, vjust = 0.5, color = "navy")) + 
+  xlab("Item Type") + ylab("Item Outlet Sales")+
+  ggtitle("Item Type vs Sales") +
+  theme_void()
+
+
+```
+
+
+```{r}
+#Item Type vs Item MRP
+ggplot(train, aes(Item_Type, Item_MRP)) +
+  geom_boxplot() +
+  ggtitle("Box Plot") + theme(axis.text.x = element_text(angle = 70, vjust = 0.5, color = "red")) + 
+  xlab("Item Type") + ylab("Item MRP") + 
+  ggtitle("Item Type vs Item MRP")
+
+
+```
+
+
+### Importing Test data
+```{r}
+test = read_csv("/cloud/project/Data/test.csv")
+head(test)
+```
+
+
+```{r}
+#Checking Dim of test and train data
+dim(train)
+dim(test)
+```
+
+```{r}
+colnames(train)
+print(".........................................................")
+colnames(test)
+```
+
+```{r}
+# combine the data sets.
+test$Item_Outlet_Sales <-  1
+
+combi <- rbind(train, test)
+dim(combi)
+```
+
+### Impute missing value 
+
+```{r}
+#Impute missing value by median
+combi$Item_Weight[is.na(combi$Item_Weight)] <- median(combi$Item_Weight, na.rm = TRUE)
+combi$Item_Weight[is.na(combi$Item_Weight)]
+table(is.na(combi$Item_Weight))
+
+```
+
+In the graph above, the item visibility has zero value also, which is practically not feasible. Hence, we’ll consider it as a missing value so we made the imputation using median.
+```{r}
+combi$Item_Visibility <- ifelse(combi$Item_Visibility == 0,
+                           median(combi$Item_Visibility), combi$Item_Visibility)
+```
+
+
+
+```{r}
+#Item_Visibility ~ Item_Outlet_Sales
+ggplot(combi, aes(x= Item_Visibility, y = Item_Outlet_Sales)) + 
+  geom_point(size = 2, color="navy") + 
+  xlab("Item Visibility") + ylab("Item Outlet Sales") + 
+  ggtitle("Item Visibility vs Item Outlet Sales") + 
+  theme_linedraw()
+```
+
+
+## Data Manipulation in R
+
+
+
+### Load Datasets
+
+```{r}
+big_mart = read_csv("/cloud/project/Data/BigMartSales.csv")
+head(train)
+
+```
+
+```{r}
+glimpse(big_mart)
+```
+
+```{r}
+summary(big_mart)
+```
+
+## Manipulating Dataset
+
+
+
+```{r}
+unique(big_mart$Item_Fat_Content)
+```
+**Cleaning Item_Fat_Content Variable**
+```{r}
+#Transforming "low fat" and "LF" to "Low Fat"
+index <- which(big_mart$Item_Fat_Content == "LF" | 
+                 big_mart$Item_Fat_Content == "low fat")
+
+big_mart[index, "Item_Fat_Content"] <- "Low Fat"
+
+#Transforming "reg" to "Regular
+index2 <- which(big_mart$Item_Fat_Content == "reg")
+
+big_mart[index2, "Item_Fat_Content"] <- "Regular"
+
+#Dropping Unused Levels
+big_mart$Item_Fat_Content <- factor(big_mart$Item_Fat_Content)
+
+unique(big_mart$Item_Fat_Content)
+```
+Imputing Missing Values
+```{r}
+#Using kNN imputation for missing values
+big_mart_imputed <- kNN(big_mart)
+big_mart_imputed <- big_mart_imputed %>% 
+    select(Item_Identifier:Item_Outlet_Sales)
+
+summary(big_mart_imputed)
+
+summary(is.na(big_mart_imputed))
+```
+
+### Impute Values for Outlet_Size
+```{r}
+#Outlet Identifier by Outlet Size Table
+table(big_mart_imputed$Outlet_Identifier, big_mart_imputed$Outlet_Size)
+
+```
+```{r}
+# Outlet Identifier by Outlet_Type Table
+table(big_mart_imputed$Outlet_Identifier, big_mart_imputed$Outlet_Type)
+
+```
+
+```{r}
+# Outlet Type by Outlet Size Table
+table(big_mart$Outlet_Type, big_mart_imputed$Outlet_Size)
+
+```
+
+```{r}
+# Imputing Small for OUT010 Location
+index3 <- which(big_mart_imputed$Outlet_Identifier == "OUT010")
+big_mart_imputed[index3, "Outlet_Size"] <- "Small"
+
+#Imputing Small for OUT017 Location
+index4 <- which(big_mart_imputed$Outlet_Identifier == "OUT017")
+big_mart_imputed[index4, "Outlet_Size"] <- "Medium"
+
+# Imputing Medium for OUT045 Location
+index5 <- which(big_mart_imputed$Outlet_Identifier == "OUT045")
+big_mart_imputed[index5, "Outlet_Size"] <- "Medium"
+
+# Dropping Unused Levels for Outlet Size Variable
+big_mart_imputed$Outlet_Size <- factor(big_mart_imputed$Outlet_Size)
+
+#Summary Cleaned Dataset
+summary(big_mart_imputed)
+```
+
+# Visualizing Data
+```{r}
+# Item Outlet Sales Histogram
+
+ggplot(big_mart_imputed, aes(x=Item_Outlet_Sales)) +
+  geom_histogram(binwidth = 200,colour = c("blue")) +
+  labs(title = "Item Outlet Sales Histogram", x = "Item Outlet Sales")+
+  theme_light()
+
+```
+
+```{r}
+# Item Outlet Sales Histogram by Outlet Identifier
+
+ggplot(big_mart_imputed, aes(x=Item_Outlet_Sales, fill = Outlet_Identifier)) +
+  geom_histogram(binwidth = 200) +
+  facet_wrap(~ Outlet_Identifier) +
+  labs(title = "Item Outlet Sales Histogram", x = "Item Outlet Sales") +
+  theme_minimal()
+```
+
+```{r}
+# Sales by Outlet Identifier
+
+ggplot(big_mart_imputed, aes(x = Outlet_Identifier,y = Item_Outlet_Sales)) +
+  geom_boxplot() +
+  labs(title = "Sales by Outlet Identifier", x = "Outlet Identifier", y = "Item Outlet Sales") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+```{r}
+# Item Outlet Sales by Item MRP and Outlet Identifier
+ggplot(big_mart_imputed, aes(x = Item_MRP,y = Item_Outlet_Sales)) +
+  geom_bin2d() +
+  facet_wrap(~ Outlet_Identifier) +
+  labs(title = "Item Outlet Sales by Item MRP and Outlet Identifier",
+       x = "Item MRP",
+       y = "Item Outlet Sales")
+```
+
+### Median Sales by Location
+```{r}
+
+sales = big_mart_imputed %>%
+  group_by(Outlet_Identifier) %>%
+  summarize(median_sales = median(Item_Outlet_Sales))%>%
+  arrange(desc(median_sales))
+
+sales
+```
+
+
+```{r}
+# Correlation of Item Outlet Sales and Item MRP
+cor(big_mart_imputed$Item_MRP, big_mart_imputed$Item_Outlet_Sales)
+```
+
+## Modeling
+*Linear Regression
+*Lasso Regression
+*Ridge Regression
+*RandomForest
+*XGBoost
+
+```{r}
+head(train)
+head(test)
+dim(train)
+dim(test)
+dim(combi)
+```
+
+
+
+```{r}
+#plotting sales histogram.
+ggplot(train) + geom_histogram(aes(train$Item_Outlet_Sales), binwidth = 100, fill = "darkgreen") +
+  xlab("Item_Outlet_Sales")
+```
+
+```{r}
+#Independent Variables (numeric variables)
+p1 = ggplot(combi) + geom_histogram(aes(Item_Weight), binwidth = 0.5, fill = "blue")
+p2 = ggplot(combi) + geom_histogram(aes(Item_Visibility), binwidth = 0.005, fill = "blue")
+p3 = ggplot(combi) + geom_histogram(aes(Item_MRP), binwidth = 1, fill = "blue")
+plot_grid(p1, p2, p3, nrow = 3) # plot_grid() from cowplot package
+```
+
+```{r}
+# Independent Variables (categorical variables)
+p4=ggplot(combi %>% group_by(Item_Fat_Content) %>% summarise(Count = n())) + 
+  geom_bar(aes(Item_Fat_Content, Count), stat = "identity", fill = "coral1")
+combi$Item_Fat_Content[combi$Item_Fat_Content == "LF"] = "Low Fat"
+combi$Item_Fat_Content[combi$Item_Fat_Content == "low fat"] = "Low Fat"
+combi$Item_Fat_Content[combi$Item_Fat_Content == "reg"] = "Regular"
+p5=ggplot(combi %>% group_by(Item_Fat_Content) %>% summarise(Count = n())) + 
+  geom_bar(aes(Item_Fat_Content, Count), stat = "identity", fill = "coral1")
+
+plot_grid(p4,p5,nrow = 1)
+```
+
+```{r}
+p6 = ggplot(combi %>% group_by(Item_Type) %>% summarise(Count = n())) + 
+  geom_bar(aes(Item_Type, Count), stat = "identity", fill = "coral1") +
+  xlab("") +
+  geom_label(aes(Item_Type, Count, label = Count), vjust = 0.5) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  ggtitle("Item_Type")
+p7 = ggplot(combi %>% group_by(Outlet_Identifier) %>% summarise(Count = n())) + 
+  geom_bar(aes(Outlet_Identifier, Count), stat = "identity", fill = "coral1") +
+  geom_label(aes(Outlet_Identifier, Count, label = Count), vjust = 0.5) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+p8 = ggplot(combi %>% group_by(Outlet_Size) %>% summarise(Count = n())) + 
+  geom_bar(aes(Outlet_Size, Count), stat = "identity", fill = "coral1") +
+  geom_label(aes(Outlet_Size, Count, label = Count), vjust = 0.5) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+second_row = plot_grid(p7, p8, nrow = 1)
+plot_grid(p6, second_row, ncol = 1)
+```
+
+
+```{r}
+p9 = ggplot(combi %>% group_by(Outlet_Establishment_Year) %>% summarise(Count = n())) + 
+  geom_bar(aes(factor(Outlet_Establishment_Year), Count), stat = "identity", fill = "coral1") +
+  geom_label(aes(factor(Outlet_Establishment_Year), Count, label = Count), vjust = 0.5) +
+  xlab("Outlet_Establishment_Year") +
+  theme(axis.text.x = element_text(size = 8.5))
+p10 = ggplot(combi %>% group_by(Outlet_Type) %>% summarise(Count = n())) + 
+  geom_bar(aes(Outlet_Type, Count), stat = "identity", fill = "coral1") +
+  geom_label(aes(factor(Outlet_Type), Count, label = Count), vjust = 0.5) +
+  theme(axis.text.x = element_text(size = 8.5))
+plot_grid(p9, p10, ncol = 2)
+```
+
+
+```{r}
+#Split train data
+train = combi[1:nrow(train),]
+head(train)
+dim(train)
+```
+### Bivariate Analysis
+```{r}
+p9 = ggplot(train) + geom_point(aes(Item_Weight, Item_Outlet_Sales), colour = "violet", alpha = 0.3) +
+     theme(axis.title = element_text(size = 8.5))
+p10 = ggplot(train) + geom_point(aes(Item_Visibility, Item_Outlet_Sales), colour = "violet", alpha = 0.3) +
+      theme(axis.title = element_text(size = 8.5))
+p11 = ggplot(train) + geom_point(aes(Item_MRP, Item_Outlet_Sales), colour = "violet", alpha = 0.3) +
+      theme(axis.title = element_text(size = 8.5))
+second_row_2 = plot_grid(p10, p11, ncol = 2)
+plot_grid(p9, second_row_2, nrow = 2)
+```
+
+
+```{r}
+p12 = ggplot(train) + geom_violin(aes(Item_Type, Item_Outlet_Sales), fill = "magenta") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        axis.text = element_text(size = 6),
+        axis.title = element_text(size = 8.5))
+p13 = ggplot(train) + geom_violin(aes(Item_Fat_Content, Item_Outlet_Sales), fill = "magenta") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        axis.text = element_text(size = 8),
+        axis.title = element_text(size = 8.5))
+p14 = ggplot(train) + geom_violin(aes(Outlet_Identifier, Item_Outlet_Sales), fill = "magenta") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        axis.text = element_text(size = 8),
+        axis.title = element_text(size = 8.5))
+second_row_3 = plot_grid(p13, p14, ncol = 2)
+plot_grid(p12, second_row_3, ncol = 1)
+```
+
+
+```{r}
+ggplot(train) + geom_violin(aes(Outlet_Size, Item_Outlet_Sales), fill = "magenta")
+```
+
+
+```{r}
+p15 = ggplot(train) + geom_violin(aes(Outlet_Location_Type, Item_Outlet_Sales), fill = "magenta")
+p16 = ggplot(train) + geom_violin(aes(Outlet_Type, Item_Outlet_Sales), fill = "magenta")
+plot_grid(p15, p16, ncol = 1)
+```
+
+
+### Missing Value Treatment
+
+```{r}
+colSums(is.na(combi))
+```
+
+```{r}
+#Replacing 0’s in Item_Visibility variable
+zero_index = which(combi$Item_Visibility == 0)
+for(i in zero_index){
+  
+  item = combi$Item_Identifier[i]
+  combi$Item_Visibility[i] = mean(combi$Item_Visibility[combi$Item_Identifier == item], na.rm = T)
+  
+}
+```
+
+```{r}
+# create a new feature 'Item_Type_new' 
+perishable = c("Breads", "Breakfast", "Dairy", "Fruits and Vegetables", "Meat", "Seafood")
+non_perishable = c("Baking Goods", "Canned", "Frozen Foods", "Hard Drinks", "Health and Hygiene","Household", "Soft Drinks")
+combi$Item_Type_new0 = ifelse(combi$Item_Type %in% perishable, "perishable",
+                               ifelse(combi$Item_Type %in% non_perishable, "non_perishable", "not_sure"))
+```
+
+
+```{r}
+table(combi$Item_Type, substr(combi$Item_Identifier, 1, 2))
+```
+
+```{r}
+combi$Item_category = substr(combi$Item_Identifier, 1, 2)
+combi$Item_Fat_Content[combi$Item_category == "NC"] = "Non-Edible"
+# years of operation of outlets
+combi$Outlet_Years = 2013 - as.numeric(combi$Outlet_Establishment_Year)
+combi$Outlet_Establishment_Year = as.factor(combi$Outlet_Establishment_Year)
+# Price per unit weight
+combi$price_per_unit_wt = combi$Item_MRP/combi$Item_Weight
+```
+
+
+```{r}
+Item_MRP_clusters = kmeans(combi$Item_MRP, centers = 4)
+table(Item_MRP_clusters$cluster) # display no. of observations in each cluster
+```
+
+```{r}
+combi$Item_MRP_clusters = as.factor(Item_MRP_clusters$cluster)
+```
+
+
+## Encoding Categorical Variables
+
+### Label encoding for the categorical variables
+
+We will label encode *Outlet_Size* and *Outlet_Location_Type* as these are ordinal variables.
+
+```{r}
+combi$Outlet_Size_num = ifelse(combi$Outlet_Size == "Small", 0,
+                                 ifelse(combi$Outlet_Size == "Medium", 1, 2))
+combi$Outlet_Location_Type_num = ifelse(combi$Outlet_Location_Type == "Tier 3", 0,
+                                          ifelse(combi$Outlet_Location_Type == "Tier 2", 1, 2))
+# removing categorical variables after label encoding
+#combi[, c("Outlet_Size", "Outlet_Location_Type") := NULL]
+```
+
+
+### One hot encoding for the categorical variable
+```{r}
+ohe = dummyVars("~.", data = combi[,-c("Item_Identifier", "Outlet_Establishment_Year", "Item_Type")], fullRank = T)
+ohe_df = data.table(predict(ohe, combi[,-c("Item_Identifier", "Outlet_Establishment_Year", "Item_Type")]))
+combi = cbind(combi[,"Item_Identifier"], ohe_df)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
