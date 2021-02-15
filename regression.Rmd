@@ -1,0 +1,213 @@
+---
+title: "Regression Analysis"
+author: "MAHESH DIVAKARAN"
+date: "2/15/2021"
+output: html_document
+---
+
+### Loading Libraries
+```{r}
+library(fBasics)  #jarque-bera 
+library(lmtest)   # Durbin-Watson test
+```
+
+## Reading the dataset
+
+The data we will use, one year of marketing spend and company sales by month.
+
+```{r}
+dataset = read.csv("/cloud/project/Data/budget.csv", header = T, colClasses = c("numeric", "numeric", "numeric"))
+dataset
+```
+
+```{r}
+str(dataset)
+
+```
+
+```{r}
+#Plotting the data'
+
+plot(dataset$Spend,dataset$Sales)
+
+plot(dataset$Month,dataset$Spend)
+plot(dataset$Month,dataset$Sales)
+```
+
+## Linear Regression Using lm()
+
+**Simple Linear Regression Using `lm()`**
+
+The Simple Linear Regression equation,  y = β0 + β1X 
+
+```{r}
+simple.fit = lm(Sales ~ Spend, data=dataset)
+summary(simple.fit)
+```
+
+```{r}
+layout(matrix(c(1,1,2,3),2,2,byrow=T))
+#Spend x Residuals Plot
+plot(simple.fit$resid~dataset$Spend[order(dataset$Spend)],
+ main="Spend x Residuals\nfor Simple Regression",
+ xlab="Marketing Spend", ylab="Residuals")
+abline(h=0,lty=2)
+#Histogram of Residuals
+hist(simple.fit$resid, main="Histogram of Residuals",
+ ylab="Residuals")
+#Q-Q Plot
+qqnorm(simple.fit$resid)
+qqline(simple.fit$resid)
+```
+
+
+The histogram and QQ-plot are the ways to visually evaluate if the residual fit a normal distribution. 
+
+```{r}
+#Null Hypothesis: Skewness and Kurtosis are equal to zero
+jarqueberaTest(simple.fit$resid) #Test residuals for normality
+```
+
+With a p value of 0.6195, we fail to reject the null hypothesis that the skewness and kurtosis of residuals are statistically equal to zero.
+
+```{r}
+# The Null hypothesis of the Durbin-Watson test is that the errors are serially UNcorrelated.
+dwtest(simple.fit) #Test for independence of residuals  
+```
+
+
+
+# Multiple Linear Regression
+
+
+###The Libraries required
+```{r}
+library(datarium)
+library(caTools)
+library(ggplot2)
+library(GGally)
+```
+
+# The data corresponding to youtube, Facebook, newspaper and sales the data size comes out to be 200 x 4.
+```{r}
+#Loading The Data
+data("marketing", package = "datarium")
+data_size = dim(marketing)
+data_size
+```
+```{r}
+# Understanding the data
+head(marketing,5)
+summary(marketing)
+```
+
+```{r}
+#Pairwise plotting technique 1
+plot(marketing, col="purple", main="Plotting Pairs Against Each Other")
+```
+
+```{r}
+#Pairwise plotting technique 2
+ggpairs(marketing)
+```
+
+### Preparing the data
+
+```{r}
+#Global Variable
+splitRatio = 0.80
+
+#Splitting The Data
+set.seed(101)# Set Seed so that same sample can be reproduced in future also
+
+#Now Selecting 80% of data as sample from total 'n' rows of the data
+sample = sample.split(marketing$youtube, SplitRatio = splitRatio)
+sample
+dim(sample)
+train = subset(marketing, sample == TRUE)
+test = subset(marketing, sample == FALSE)
+train_size = dim(train)
+train_size
+test_size = dim(test)
+test_size
+```
+
+
+### Creating the model
+
+sales ~ youtube + facebook + newspaper
+
+```{r}
+#creating the model
+Model <- lm(sales ~ youtube + facebook + newspaper, data = marketing)
+summary(Model)
+```
+
+#### Model: sales  = 3.526 + 0.045 * youtube + 0.188* facebook + 0.001 * newspaper
+
+## Model Accuracy Analysis
+```{r}
+#Predicting
+pred <- predict(Model, test)
+numx <- data_size[1]*(1 - splitRatio)
+x_axis <- seq(numx)
+df <- data.frame(x_axis, pred,test$sales)
+df
+```
+
+```{r}
+#Plotting the predicted values against the actual values
+g <- ggplot(df, aes(x=x_axis))
+g <- g + geom_line(aes(y=pred, colour="Predicted"))
+g <- g + geom_point(aes(x=x_axis, y=pred, colour="Predicted"))
+g <- g + geom_line(aes(y=test$sales, colour="Actual"))
+g <- g + geom_point(aes(x=x_axis, y=test$sales, colour="Actual"))
+g <- g + scale_colour_manual("", values = c(Predicted="red", Actual="blue"))
+g
+```
+
+```{r}
+#Evaluation
+original = test$sales
+predicted = pred
+d = original-predicted
+mse = mean((d)^2)
+mae = mean(abs(d))
+rmse = sqrt(mse)
+R2 = 1-(sum((d)^2)/sum((original-mean(original))^2))
+cat(" MAE:", mae, "\n", "MSE:", mse, "\n", 
+    "RMSE:", rmse, "\n", "R-squared:", R2)
+```
+
+
+```{r}
+#Histogram of Residuals
+hist(Model$resid, main="Histogram of Residuals",
+ ylab="Residuals")
+#Q-Q Plot
+qqnorm(Model$resid)
+qqline(Model$resid)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
