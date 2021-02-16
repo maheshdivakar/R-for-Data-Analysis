@@ -1,0 +1,247 @@
+---
+title: "Linear Regression with Boston Housing Dataset"
+author: "Mahesh_Divakaran"
+date: "24 November 2018"
+output:
+  html_document:
+    code_folding: show
+    toc: yes
+    toc_float: yes
+---
+
+```{r setup, include=FALSE}
+```
+#Linear Regression 
+First, lets Install and load the requried packages. 
+
+```{r eval=FALSE}
+install.packages('readr')
+install.packages('ggplot2')
+install.packages('mlbench')
+install.packages('corrplot')
+install.packages('Amelia')
+install.packages('caret')
+install.packages('plotly')
+install.packages('caTools')
+install.packages('reshape2')
+install.packages('dplyr')
+```
+
+```{r message=FALSE,warning=FALSE,error=FALSE}
+
+library(readr)
+library(ggplot2)
+library(corrplot)
+library(mlbench)
+library(Amelia)
+library(plotly)
+library(reshape2)
+library(caret)
+library(caTools)
+library(dplyr)
+```
+##Boston Housing Dataset
+Housing data contains 506 census tracts of Boston from the 1970 census. The dataframe `BostonHousing` contains the original data by Harrison and Rubinfeld (1979), the dataframe BostonHousing2 the corrected version with additional spatial information.
+
+You can include this data by installing `mlbench` library.The data has following features, `medv` being the target variable:
+
+ * crim   - per capita crime rate by town
+ * zn     - proportion of residential land zoned for lots over 25,000 sq.ft
+ * indus	- proportion of non-retail business acres per town
+ * chas	  - Charles River dummy variable (= 1 if tract bounds river; 0 otherwise)
+ * nox	  - nitric oxides concentration (parts per 10 million)
+ * rm	    - average number of rooms per dwelling
+ * age	  - proportion of owner-occupied units built prior to 1940
+ * dis	  - weighted distances to five Boston employment centres
+ * rad	  - index of accessibility to radial highways
+ * tax	  - full-value property-tax rate per USD 10,000
+ * ptratio- pupil-teacher ratio by town
+ * b	1000(B - 0.63)^2, where B is the proportion of blacks by town
+ * lstat  - percentage of lower status of the population
+ * medv	  - median value of owner-occupied homes in USD 1000's
+
+ 
+##Data 
+**Load the `BostonHousing` data and assign it to the variable `housing` . **
+ 
+```{r message=FALSE,warning=FALSE}
+data(BostonHousing)
+housing <- BostonHousing
+str(housing)
+```
+
+Lets examine the `head` of the `housing` dataframe using `head()`.
+```{r message=FALSE,warning=FALSE}
+head(housing)
+```
+
+```{r message=FALSE,warning=FALSE}
+summary(housing)
+```
+
+##Data Cleaning
+Next we have to clean this data.There are many ways to do this. I will be using `missmap()` from `Amelia` package. 
+
+### Check for any NA's in the dataframe. 
+
+```{r message=FALSE,warning=FALSE}
+missmap(housing,col=c('yellow','black'),y.at=1,y.labels='',legend=TRUE)
+
+```
+
+The above plot clearly shows that the data is free from NA's. 
+
+##Exploratory Data Analysis
+
+Let's use ggplot2,corrplot and plotly to explore the data a bit. 
+
+###Visualizations {.tabset}
+
+####Correlation 
+
+**Correlation and CorrPlots**
+
+From Wikipedia, correlation is defined as:
+
+In statistics, **dependence or association** is any statistical relationship, whether causal or not, between two random variables or two sets of data. 
+Correlation is any of a broad class of statistical relationships involving dependence, though in common usage it most often refers to the extent to 
+which two variables have a linear relationship with each other. 
+
+**Correlation** plots are a great way of exploring data and seeing if there are any interaction terms.
+
+```{r message=FALSE,warning=FALSE,error=FALSE,fig.align='center'}
+
+corrplot(cor(select(housing,-chas)))
+```
+
+`medv` decreases with increase in  `crim` (*medium*), `indus` (*High*),`nox`(*low*),`age`(*low*),`rad`(*low*),`tax`(*low*),`ptratio`(*high*), `lstat` 
+(*High*) and increases with increase in `zn`(*low*),`rm`(*High*).
+
+####medv Density Plot using ggplot2
+
+```{r message=FALSE,warning=FALSE,error=FALSE,fig.align='center'}
+#visualizing the distribution of the target variable 
+
+housing %>% 
+  ggplot(aes(medv)) +
+  stat_density() + 
+  theme_bw()
+```
+The above visualizations reveal that peak densities of `medv` are in between 15 and 30. 
+
+####medv Density using plotly
+```{r message=FALSE,warning=FALSE,error=FALSE,fig.align='center'}
+ggplotly(housing %>% 
+  ggplot(aes(medv)) +
+  stat_density() + 
+  theme_bw())
+```
+
+The above visualizations reveal that peak densities of `medv` are in between 15 and 30. 
+
+####`medv`
+Let's see the effect of the variables in the dataframe on `medv`. 
+```{r message=FALSE,warning=FALSE,error=FALSE,fig.align='center'}
+housing %>%
+  select(c(crim, rm, age, rad, tax, lstat, medv,indus,nox,ptratio,zn)) %>%
+  melt(id.vars = "medv") %>%
+  ggplot(aes(x = value, y = medv, colour = variable)) +
+  geom_point(alpha = 0.7) +
+  stat_smooth(aes(colour = "black")) +
+  facet_wrap(~variable, scales = "free", ncol = 2) +
+  labs(x = "Variable Value", y = "Median House Price ($1000s)") +
+  theme_minimal()
+```
+
+The results from the above graph are in correlation with the corrplot.
+
+##Model Building & Prediction 
+
+###General Form 
+
+The General Linear regression model in R : 
+
+Univariate Model :
+$model <- lm(y\sim x,data)$
+
+Multivariate Model  :
+$model <- lm(y \sim.,data)$
+
+###Train and Test Data
+
+Lets split the data into train and test data using `caTools` library.
+
+```{r message=FALSE,warning=FALSE,error=FALSE}
+#set a seed 
+set.seed(123)
+
+#Split the data , `split()` assigns a booleans to a new column based on the SplitRatio specified. 
+
+split <- sample.split(housing,SplitRatio =0.75)
+
+
+train <- subset(housing,split==TRUE)
+test <- subset(housing,split==FALSE)
+
+# train <- select(train,-b)
+# test <- select(test,-b)
+
+```
+
+###Training our Model 
+Lets build our model considering that `crim`,`rm`,`tax`,`lstat` as the major influencers on the target variable.
+
+```{r error=FALSE,warning=FALSE,message=FALSE}
+model <- lm(medv ~ crim + rm + tax + lstat , data = train)
+summary(model)
+```
+
+###Visualizing our Model
+Lets visualize our linear regression model by plotting the residuals. The difference between the observed value of the **dependent variable** `(y)` and
+the **predicted value** `(y)` is called the **residual** `(e)`.
+
+```{r message=FALSE,warning=FALSE}
+
+res <- residuals(model)
+
+# Convert residuals to a DataFrame 
+
+res <- as.data.frame(res)
+```
+
+```{r message=FALSE,warning=FALSE,fig.align='center'}
+ggplot(res,aes(res)) +  geom_histogram(fill='blue',alpha=0.5)
+
+plot(model)
+```
+
+###Predictions
+
+Let's test our model by predicting on our testing dataset. 
+
+```{r message=FALSE,warning=FALSE,fig.align='center'}
+test$predicted.medv <- predict(model,test)
+
+pl1 <-test %>% 
+  ggplot(aes(medv,predicted.medv)) +
+  geom_point(alpha=0.5) + 
+  stat_smooth(aes(colour='black')) +
+  xlab('Actual value of medv') +
+  ylab('Predicted value of medv')+
+  theme_bw()
+
+ggplotly(pl1)
+```
+
+Lets evaluate our model using Root Mean Square Error, a standardized measure of how off we were with our predicted values.
+
+###Assessing our Model
+
+```{r message=FALSE,warning=FALSE}
+error <- test$medv-test$predicted.medv
+rmse <- sqrt(mean(error)^2)
+```
+
+
+The Root Mean Square Error (RMSE) for our Model is `r rmse` and the Results can be further improved using feature extraction and rebuilding,training 
+the model.
