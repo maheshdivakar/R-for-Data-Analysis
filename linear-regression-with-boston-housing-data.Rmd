@@ -1,7 +1,7 @@
 ---
 title: "Linear Regression with Boston Housing Dataset"
 author: "Mahesh_Divakaran"
-date: "24 November 2018"
+date: "16 February 2021"
 output:
   html_document:
     code_folding: show
@@ -9,9 +9,27 @@ output:
     toc_float: yes
 ---
 
-```{r setup, include=FALSE}
+# Linear Regression 
+
+Linear regression is an analysis that assesses whether one or more predictor variables explain the dependent (criterion) variable. 
+
+### Regression Equation
+```{r}
+
+knitr::include_graphics("https://miro.medium.com/max/2872/1*k2bLmeYIG7z7dCyxADedhQ.png")
 ```
-#Linear Regression 
+
+
+The regression has five key assumptions:
+
+* Linear relationship
+* Multivariate normality
+* No or little multicollinearity
+* No auto-correlation
+* Homoscedasticity
+
+
+
 First, lets Install and load the requried packages. 
 
 ```{r eval=FALSE}
@@ -40,7 +58,7 @@ library(caret)
 library(caTools)
 library(dplyr)
 ```
-##Boston Housing Dataset
+## Boston Housing Dataset
 Housing data contains 506 census tracts of Boston from the 1970 census. The dataframe `BostonHousing` contains the original data by Harrison and Rubinfeld (1979), the dataframe BostonHousing2 the corrected version with additional spatial information.
 
 You can include this data by installing `mlbench` library.The data has following features, `medv` being the target variable:
@@ -52,7 +70,7 @@ You can include this data by installing `mlbench` library.The data has following
  * nox	  - nitric oxides concentration (parts per 10 million)
  * rm	    - average number of rooms per dwelling
  * age	  - proportion of owner-occupied units built prior to 1940
- * dis	  - weighted distances to five Boston employment centres
+ * dis	  - weighted distances to five Boston employment centers
  * rad	  - index of accessibility to radial highways
  * tax	  - full-value property-tax rate per USD 10,000
  * ptratio- pupil-teacher ratio by town
@@ -79,7 +97,7 @@ head(housing)
 summary(housing)
 ```
 
-##Data Cleaning
+### Data Cleaning
 Next we have to clean this data.There are many ways to do this. I will be using `missmap()` from `Amelia` package. 
 
 ### Check for any NA's in the dataframe. 
@@ -91,13 +109,13 @@ missmap(housing,col=c('yellow','black'),y.at=1,y.labels='',legend=TRUE)
 
 The above plot clearly shows that the data is free from NA's. 
 
-##Exploratory Data Analysis
+### Exploratory Data Analysis
 
 Let's use ggplot2,corrplot and plotly to explore the data a bit. 
 
-###Visualizations {.tabset}
+### Visualizations {.tabset}
 
-####Correlation 
+#### Correlation 
 
 **Correlation and CorrPlots**
 
@@ -110,7 +128,8 @@ which two variables have a linear relationship with each other.
 **Correlation** plots are a great way of exploring data and seeing if there are any interaction terms.
 
 ```{r message=FALSE,warning=FALSE,error=FALSE,fig.align='center'}
-
+cor(select(housing,-chas))
+#Plotting Correlation
 corrplot(cor(select(housing,-chas)))
 ```
 
@@ -189,7 +208,22 @@ test <- subset(housing,split==FALSE)
 ```
 
 ###Training our Model 
-Lets build our model considering that `crim`,`rm`,`tax`,`lstat` as the major influencers on the target variable.
+Lets build our model considering that `crim`,`rm`,`tax`,`lstat` as the major influences on the target variable.
+
+
+Test for significance of regression:
+H0 : β1 = β2 = · · · = βk = 0;
+H1 : βj 6= 0 for at least one j 6= 0.
+Note that under H0, β0 is still non-zero:
+H0 : y = β0 + e.
+
+The coefficient of determination,
+
+```{r}
+knitr::include_graphics("https://www.gstatic.com/education/formulas2/355397047/en/coefficient_of_determination.svg")
+```
+
+
 
 ```{r error=FALSE,warning=FALSE,message=FALSE}
 model <- lm(medv ~ crim + rm + tax + lstat , data = train)
@@ -239,9 +273,10 @@ Lets evaluate our model using Root Mean Square Error, a standardized measure of 
 
 ```{r message=FALSE,warning=FALSE}
 error <- test$medv-test$predicted.medv
+#error
 rmse <- sqrt(mean(error)^2)
+rmse
 ```
 
 
-The Root Mean Square Error (RMSE) for our Model is `r rmse` and the Results can be further improved using feature extraction and rebuilding,training 
-the model.
+The Root Mean Square Error (RMSE) for our Model is `r rmse` and the Results can be further improved using feature extraction and rebuilding,training the model.
