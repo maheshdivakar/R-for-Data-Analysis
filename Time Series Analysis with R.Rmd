@@ -1,7 +1,13 @@
 ---
 title: "Understanding Time Series Analysis with R"
-output: html_notebook
+author: "Mahesh Divakaran"
+date: "02/17/2021"
+output: html_document
 ---
+
+
+## Time Series Analysis
+Time series data is different because it is recorded at regular time intervals, and the order of these data points is important. Therefore, any predictive model based on time series data will have time as an independent variable. The output of a model would be the predicted value or classification at a specific time. 
 
 ## Multiplicative Time Series Forecasting
 
@@ -18,6 +24,7 @@ y<-c(2.8, 2.1, 4, 4.5, 3.8, 3.2, 4.8, 5.4, 4, 3.6, 5.5, 5.8, 4.3, 3.9, 6, 6.4, N
 data <- data.frame(t=x, sales=y)
 data
 ```
+
 ```{r}
 data %>%
   ggplot(aes(x=t, y=sales))+
@@ -27,11 +34,13 @@ data %>%
   ylab('Sales')+
   theme_minimal()
 ```
+
 ```{r}
 ggplot(data, aes(x=t, y=sales), col='light blue')+ 
   geom_point()+ 
   stat_smooth(method="lm",col="red")
 ```
+
 ```{r}
 df <- data
 Y <- 2 #2 is the position of our "sales" column in the dataframe
@@ -39,8 +48,16 @@ k <- 4 #k is equal to the size of the subset
 
 #Array with all of the raw values of 'Y'
 arr <- df[, Y]
+arr
+```
+
+```{r}
 #Empty array to store the values of the moving averages
 MM<-rep(NA, length(arr))
+MM
+```
+
+```{r}
 index<-k-1
   
 for(i in c(1:length(arr))){
@@ -53,6 +70,8 @@ for(i in c(1:length(arr))){
 
 MM
 ```
+
+
 ```{r}
 dfOut <- data.frame(df, MM=MM)
 
@@ -89,7 +108,13 @@ for(i in c(1:length(arr))){
     index <- index+1
   }
 }
-  
+
+MM
+SI
+
+```
+
+```{r}
 dfOut <- data.frame(df, MM=MM, SI=SI)
   
 #Seasonality
@@ -103,6 +128,8 @@ varY<- rep(varY, k+1)
 dfOut <- data.frame(dfOut, S=varY)
 dfOut
 ```
+
+
 ```{r}
 dfOut %>%
   ggplot(aes(x=t, y=S))+
@@ -126,6 +153,8 @@ dfOut %>%
   ylab('DES')+
   theme_minimal()
 ```
+
+
 ```{r}
 #Linear model
 model <- lm(DES ~ t, data=dfOut)
@@ -196,8 +225,18 @@ MultForecast<-function(k, df, Y){
 
 ### Plotting the model
 
+
+```{r}
+data
+```
+
+
 ```{r}
 dfOut <- MultForecast(4, data, 2)
+dfOut
+```
+
+```{r}
 
 dfOut %>%
   ggplot(aes(x=t, y=sales))+

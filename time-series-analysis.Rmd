@@ -1,15 +1,11 @@
 ---
 title: "Bike Share: Time Series Analysis"
-author: "Rebecca Hadi"
-date: "12/16/2018"
+author: "Mahesh Divakaran"
+date: "02/17/2021"
 output: html_document
 ---
 
-## Background & Approach
-
-As 2019 inches closer, I've been thinking about the purpose of my blog. I'd like to use my blog as a forum to practice skills I may not get the opportunity to use otherwise. And who knows, maybe by practicing these skills I will see opportunities to apply them in my current work. 
-
-With that, yes, this is another blog post exploring time series. This time, with Bikes!  I'm following along with this blog post (link)[https://www.datascience.com/blog/introduction-to-forecasting-with-arima-in-r-learn-data-science-tutorials], and the work herein is largely a reproduction of this helpful resource. 
+## About the data
 
 The core data set is related to the two-year historical log corresponding to years 2011 and 2012 from Capital Bike share system, Washington D.C., USA which is publicly available in http://capitalbikeshare.com/system-data.
 
@@ -26,13 +22,21 @@ library('ggfortify')
 
 ```{r, include = FALSE, message=FALSE, warning=FALSE}
 # load & look at data 
-daily_data = read.csv('day.csv', header=TRUE, stringsAsFactors=FALSE)
+daily_data = read.csv('/cloud/project/Data/day.csv', header=TRUE, stringsAsFactors=FALSE)
 ```
 
-```{r, echo = FALSE, warning = FALSE, include = FALSE}
+
+```{r}
+str(daily_data)
+```
+
+```{r, warning = FALSE}
 # convert to date 
 daily_data$Date = as.Date(daily_data$dteday)
+str(daily_data)
+```
 
+```{r}
 # Step 1: plot the data 
 daily.plot <- ggplot(daily_data, aes(Date, cnt)) + 
   geom_line() + 
@@ -52,8 +56,12 @@ The typical value per day is between 2500 - 7000, but we observe outliers. To wo
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
 # convert into ts object (column count only)
 counts <- daily_data[c('cnt')] # extract column counts 
-count_ts = ts(counts) # convert this to time series 
+count_ts = ts(counts) # convert this to time series
+head(count_ts)
+```
 
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
 # use tsclean to remove outliers 
 daily_data$clean_cnt = forecast::tsclean(count_ts)
 
@@ -104,7 +112,7 @@ plot(decomp)
 ```
 
 
-Fitting an ARIMA model requires the series to be stationary. A series is said to be stationary when its mean, variance, and autocovariance are time invariant. Since ARIMA uses previous lags of series to model its behavior, modeling stable series with consistent properties involves less uncertainty.
+Fitting an ARIMA(p,d,q) model requires the series to be stationary. A series is said to be stationary when its mean, variance, and autocovariance are time invariant. Since ARIMA uses previous lags of series to model its behavior, modeling stable series with consistent properties involves less uncertainty.
 
 For forecasting, it is important to be stationary. So I need to test for it. Null hypothesis assumes that series is non-stationary. 
 
