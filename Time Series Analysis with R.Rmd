@@ -1,0 +1,212 @@
+---
+title: "Understanding Time Series Analysis with R"
+output: html_notebook
+---
+
+## Multiplicative Time Series Forecasting
+
+```{r}
+#Import libraries
+library(dplyr)
+library(ggplot2)
+```
+
+```{r}
+x<-seq(1,20)
+y<-c(2.8, 2.1, 4, 4.5, 3.8, 3.2, 4.8, 5.4, 4, 3.6, 5.5, 5.8, 4.3, 3.9, 6, 6.4, NA, NA, NA, NA)
+
+data <- data.frame(t=x, sales=y)
+data
+```
+```{r}
+data %>%
+  ggplot(aes(x=t, y=sales))+
+  geom_line(col = 'light blue')+
+  geom_point()+
+  xlab('Time')+
+  ylab('Sales')+
+  theme_minimal()
+```
+```{r}
+ggplot(data, aes(x=t, y=sales), col='light blue')+ 
+  geom_point()+ 
+  stat_smooth(method="lm",col="red")
+```
+```{r}
+df <- data
+Y <- 2 #2 is the position of our "sales" column in the dataframe
+k <- 4 #k is equal to the size of the subset
+
+#Array with all of the raw values of 'Y'
+arr <- df[, Y]
+#Empty array to store the values of the moving averages
+MM<-rep(NA, length(arr))
+index<-k-1
+  
+for(i in c(1:length(arr))){
+  if(i <= length(arr) -k+1){
+    block <- mean(arr[seq(i, i+(k-1))])
+    MM[index] <- block
+    index <- index+1
+  }
+}
+
+MM
+```
+```{r}
+dfOut <- data.frame(df, MM=MM)
+
+dfOut %>%
+  ggplot(aes(x=t, y=sales))+
+  geom_line(col = 'light blue')+
+  geom_point()+
+  geom_line(aes(x=t, y=MM), col = 'orange')+
+  geom_point(aes(x=t, y=MM), col = 'orange')+
+  xlab('Time')+
+  ylab('Sales')+
+  theme_minimal()
+```
+
+### Calculating Sesonality
+
+```{r}
+df <- data
+Y <- 2 #2 is the position of our "sales" column in the dataframe
+k <- 4 #k is equal to the size of the subset
+
+#Array with all of the raw values of 'Y'
+arr <- df[, Y]
+#Empty array to store the values of the moving averages
+MM<-rep(NA, length(arr))
+SI <- rep(NA, length(arr))
+index<-k-1
+  
+for(i in c(1:length(arr))){
+  if(i <= length(arr) -k+1){
+    block <- mean(arr[seq(i, i+(k-1))])
+    MM[index] <- block
+    SI[index] <- arr[index]/block #Seasonality + Irregular Component
+    index <- index+1
+  }
+}
+  
+dfOut <- data.frame(df, MM=MM, SI=SI)
+  
+#Seasonality
+varY<-c()
+for(j in c(1:k)){
+  varX <- seq(j, length(arr), by=k)
+  varY <- c(varY, mean(dfOut[varX, 4], na.rm=T))
+}
+    
+varY<- rep(varY, k+1)
+dfOut <- data.frame(dfOut, S=varY)
+dfOut
+```
+```{r}
+dfOut %>%
+  ggplot(aes(x=t, y=S))+
+  geom_line(col="light blue")+
+  geom_point(col="black")+
+  xlab('Time')+
+  ylab('Seasonality')+
+  theme_minimal()
+```
+
+### Deseasonalization
+
+```{r}
+#Deseasonality
+dfOut <- data.frame(dfOut, DES=(dfOut[ ,2]/dfOut[, 5]))
+dfOut %>%
+  ggplot(aes(x=t, y=DES))+
+  geom_line(col="light blue")+
+  geom_point(col="black")+
+  xlab('Time')+
+  ylab('DES')+
+  theme_minimal()
+```
+```{r}
+#Linear model
+model <- lm(DES ~ t, data=dfOut)
+
+#Predictions
+f <- predict(object = model, newdata = data.frame(t=dfOut[, 1]))
+  
+dfOut <- data.frame(dfOut, f=f)  
+
+#New prediction accounting for seasonality
+predictions <- dfOut[, 7]*dfOut[, 5]
+  
+dfOut <- data.frame(dfOut, predictions = predictions)
+dfOut
+```
+
+### Creating a function
+
+```{r}
+MultForecast<-function(k, df, Y){
+  #Array with all of the raw values of 'Y'
+  arr <- df[, Y]
+  #Empty array to store the values of the moving averages
+  MM <- rep(NA, length(arr))
+  SI <- rep(NA, length(arr))
+  index <- k-1
+  
+  #Calculate moving averages + SI
+  for(i in c(1:length(arr))){
+    if(i <= length(arr) -k+1){
+      block <- mean(arr[seq(i, i+(k-1))])
+      MM[index] <- block
+      SI[index] <- arr[index]/block #Seasonality + Irregular Component
+      index <- index+1
+    }
+  }
+  
+  dfOut <- data.frame(df, MM=MM, SI=SI)
+  
+  #Seasonality
+  varY<-c()
+  for(j in c(1:k)){
+    varX <- seq(j, length(arr), by=k)
+    varY <- c(varY, mean(dfOut[varX, 4], na.rm=T))
+  }
+    
+  varY<- rep(varY, k+1)
+  dfOut <- data.frame(dfOut, S=varY)
+  
+  #Deseasonality
+  dfOut <- data.frame(dfOut, DES=(dfOut[ ,2]/dfOut[, 5]))
+  
+  #Linear model
+  model <- lm(formula = DES ~ t, dfOut)
+  
+  #Predictions
+  f <- predict(object = model, newdata = data.frame(t=dfOut[, 1]))
+  dfOut <- data.frame(dfOut, f=f)  
+  
+  #New prediction accounting for seasonality
+  predictions <- dfOut[, 7]*dfOut[, 5]
+  
+  #Final data frame
+  dfOut <- data.frame(dfOut, predictions = predictions)
+  return(dfOut)
+}
+```
+
+### Plotting the model
+
+```{r}
+dfOut <- MultForecast(4, data, 2)
+
+dfOut %>%
+  ggplot(aes(x=t, y=sales))+
+  geom_line(col = 'light blue')+
+  geom_point()+
+  geom_line(aes(x=t, y=predictions), col = 'orange')+
+  geom_point(aes(x=t, y=predictions), col = 'orange')+
+  xlab('Time')+
+  ylab('Sales')+
+  theme_minimal()
+```
+
